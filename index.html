@@ -182,15 +182,6 @@ header .meta { font-size: 12px; opacity: .7; }
 </style>
 </head>
 <body>
-<div style="background:#ff0;padding:10px;text-align:center;margin:10px">
-  <p style="font-size:16px;font-weight:bold;color:red">🔍 图片加载测试</p>
-  <img src="resource_img/page_030.jpg" style="width:200px;border:3px solid red" onerror="this.nextSibling.textContent='❌ 加载失败: '+this.src">
-  <span></span>
-  <br>
-  <img src="resource_img/page_010.jpg" style="width:200px;border:3px solid red" onerror="this.nextSibling.textContent='❌ 加载失败: '+this.src">
-  <span></span>
-</div>
-
 
 <header>
   <div>
@@ -1240,7 +1231,7 @@ function renderResources() {
       items: sec.items.filter(i => i.name.toLowerCase().includes(searchTerm) || (i.info||'').toLowerCase().includes(searchTerm))
     })).filter(sec => sec.items.length > 0);
   }
-  container.innerHTML = filtered.map(sec => {
+  container.innerHTML = '<div style="background:#ffe0e0;padding:4px;margin-bottom:8px;font-size:11px">🔧 共 ' + filtered.length + ' 个资源分组，含 ' + filtered.reduce((s,sec)=>s+sec.items.filter(i=>i.page&&i.page>0).length,0) + ' 个有图资源</div>' + filtered.map(sec => {
     // 将重复页码的条目移到末尾，避免相同图片聚在一起
     const pageFirst = {};
     const ordered = [];
@@ -1272,7 +1263,7 @@ function renderResources() {
               ${r.bid === '是' ? '<span style="font-size:11px;color:var(--orange)">🔥竞价</span>' : ''}
             </div>
             ${r.info ? `<div class="r-info">${highlight(r.info)}</div>` : ''}
-            ${imgSrc ? `<img class="r-preview" src="${imgSrc}" loading="lazy" alt="${r.name}" style="display:block" onclick="event.stopPropagation();openImg(${r.page})">` : ''}
+            ${imgSrc ? `<img class="r-preview" src="${imgSrc}" loading="lazy" alt="${r.name}" style="display:block;border:2px solid orange" onerror="this.style.border='2px solid red'" onclick="event.stopPropagation();openImg(${r.page})">` : `<span style="color:red;font-size:10px">[无图:page=${r.page}]</span>`}
           </div>
         `}).join('')}
       </div>
