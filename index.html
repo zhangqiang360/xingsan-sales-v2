@@ -1340,7 +1340,7 @@ function closeImg() {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { closeModal(); closeImg(); }
 });
-function renderResources() { return; }; function _old_render() {
+function renderResources() {
   const container = document.getElementById('resourceList');
   let filtered = resourceData;
   if (resourceFilter !== 'all') filtered = filtered.filter(s => s.cat === resourceFilter);
