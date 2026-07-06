@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行三销售工作台 v2</title>
+<style>
+:root {
+  --bg: #f5f6f8;
+  --card: #fff;
+  --text: #1a1a2e;
+  --sub: #6b7280;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --green: #059669;
+  --green-bg: #ecfdf5;
+  --orange: #ea580c;
+  --orange-bg: #fff7ed;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: .2s ease;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+/* Header */
+header { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+header h1 { font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
+header .meta { font-size: 12px; opacity: .7; }
+.search-bar { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.15); border-radius: 8px; padding: 6px 12px; width: 320px; }
+.search-bar input { background: none; border: none; color: #fff; font-size: 13px; width: 100%; outline: none; }
+.search-bar input::placeholder { color: rgba(255,255,255,.5); }
+.search-bar .icon { opacity: .5; font-size: 14px; }
+
+/* Layout */
+.main { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+.tabs { display: flex; gap: 0; margin-bottom: 20px; background: var(--card); border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow); }
+.tab-btn { flex: 1; padding: 10px 20px; border: none; background: none; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 9px; transition: var(--transition); color: var(--sub); text-align: center; }
+.tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+.tab-btn:hover:not(.active) { background: #f3f4f6; color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Product Grid */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.product-card { background: var(--card); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); border: 2px solid transparent; position: relative; }
+.product-card:hover { box-shadow: var(--shadow-lg); border-color: var(--accent); transform: translateY(-2px); }
+.product-card .icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; }
+.product-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.product-card .subtitle { font-size: 12px; color: var(--sub); margin-bottom: 8px; }
+.product-card .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #f3f4f6; color: var(--sub); }
+.tag.hot { background: var(--red-bg); color: var(--red); }
+.tag.new { background: var(--green-bg); color: var(--green); }
+
+/* Product Detail Modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+.overlay.show { display: flex; }
+.modal { background: var(--card); border-radius: var(--radius); width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 0; }
+.modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--card); z-index: 10; }
+.modal-header h2 { font-size: 18px; }
+.modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: #f3f4f6; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
+.modal-close:hover { background: #e5e7eb; }
+.modal-body { padding: 20px 24px; }
+.modal-body section { margin-bottom: 20px; }
+.modal-body section:last-child { margin-bottom: 0; }
+.modal-body h4 { font-size: 13px; color: var(--sub); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.modal-body .info-row { display: flex; padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+.modal-body .info-row .label { width: 100px; color: var(--sub); flex-shrink: 0; }
+.modal-body .highlight-box { background: var(--accent-light); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; border-left: 3px solid var(--accent); }
+
+/* Process Section */
+.process-section { margin-bottom: 20px; }
+.process-section h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.phase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.phase-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: var(--transition); }
+.phase-card:hover { box-shadow: var(--shadow-lg); }
+.phase-card .phase-header { padding: 12px 16px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+.phase-card .phase-header .arrow { transition: transform .2s; font-size: 12px; }
+.phase-card.open .phase-header .arrow { transform: rotate(180deg); }
+.phase-card .phase-body { padding: 0 16px 16px; display: none; font-size: 13px; }
+.phase-card.open .phase-body { display: block; }
+
+/* Checklist Items */
+.checklist { list-style: none; }
+.checklist li { padding: 6px 0; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; border-bottom: 1px solid #f9fafb; }
+.checklist li .bullet { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; margin-top: 1px; }
+.bullet.must { background: var(--red-bg); color: var(--red); }
+.bullet.opt { background: var(--orange-bg); color: var(--orange); }
+.bullet.info { background: var(--accent-light); color: var(--accent); }
+
+/* Approval flow */
+.approval-chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; margin-top: 8px; }
+.approval-node { background: #f3f4f6; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+.approval-node.key { background: var(--accent); color: #fff; font-weight: 500; }
+.approval-arrow { color: var(--sub); }
+
+/* Redline alert */
+.redline { background: var(--red-bg); border-left: 3px solid var(--red); padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 12px; color: var(--red); margin-top: 8px; }
+.redline strong { display: block; margin-bottom: 2px; }
+.modal-body .redline { margin-bottom: 6px; }
+
+/* Quick tools bar */
+.quick-tools { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.quick-tool { padding: 8px 14px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); background: white; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 4px; }
+.quick-tool:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.quick-tool.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+.timeline-item { position: relative; padding: 4px 0 12px 16px; font-size: 13px; }
+.timeline-item::before { content: ''; position: absolute; left: -16px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--accent); }
+.timeline-item .step-name { font-weight: 500; }
+.timeline-item .step-desc { font-size: 12px; color: var(--sub); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-grid, .phase-grid { grid-template-columns: 1fr; }
+  .search-bar { width: 200px; }
+  header { padding: 12px 16px; }
+  .main { padding: 12px 16px; }
+  .tabs { flex-direction: column; }
+}
+
+/* Empty state */
+.empty { text-align: center; padding: 40px; color: var(--sub); }
+.empty .icon { font-size: 48px; margin-bottom: 12px; opacity: .3; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a2e; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 300; opacity: 0; transition: opacity .3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+/* Favorite star */
+.star { cursor: pointer; font-size: 16px; opacity: .3; transition: .2s; }
+.star.faved { opacity: 1; color: #f59e0b; }
+
+/* Search highlight */
+.highlight { background: #fef08a; padding: 1px 2px; border-radius: 2px; }
+.no-result { display: none; }
+.no-result.show { display: block; text-align: center; padding: 40px; color: var(--sub); }
+
+/* Resource Cards */
+.resource-section { margin-bottom: 24px; }
+.resource-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; padding: 8px 14px; background: #f9fafb; border-radius: var(--radius-sm); }
+.resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; }
+.resource-card { background: var(--card); border-radius: var(--radius-sm); padding: 14px 16px; box-shadow: var(--shadow); font-size: 13px; transition: var(--transition); cursor: pointer; }
+.resource-card:hover { box-shadow: var(--shadow-lg); }
+.resource-card .r-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.resource-card .r-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.r-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.r-badge.cpt { background: #fef3c7; color: #92400e; }
+.r-badge.cpm { background: #dbeafe; color: #1e40af; }
+.r-badge.cpc { background: #ede9fe; color: #5b21b6; }
+.r-badge.month { background: #d1fae5; color: #065f46; }
+.r-badge.day { background: #fee2e2; color: #991b1b; }
+.r-badge.week { background: #e0e7ff; color: #3730a3; }
+.r-info { font-size: 11px; color: var(--sub); margin-top: 2px; }
+.r-preview { width: 100%; margin-top: 8px; border-radius: 6px; border: 1px solid var(--border); cursor: zoom-in; transition: transform .2s; display: none; }
+.r-preview:hover { transform: scale(1.02); }
+.resource-card.expanded .r-preview { display: block; }
+
+/* Doc Links */
+.doc-section { margin-top: 12px; }
+.doc-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.doc-link { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--accent-light); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--accent); text-decoration: none; transition: var(--transition); border: 1px solid transparent; }
+.doc-link:hover { background: #dbeafe; border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(37,99,235,.15); }
+.doc-link .doc-icon { font-size: 16px; }
+.doc-link .doc-ext { font-size: 10px; color: var(--sub); margin-left: 2px; }
+
+/* Image Lightbox */
+.img-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 300; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+.img-overlay.show { display: flex; }
+.img-overlay img { max-width: 95vw; max-height: 95vh; border-radius: 8px; box-shadow: 0 8px 48px rgba(0,0,0,.5); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🧠 行三销售工作台</h1>
+    <div class="meta">360商业化 · 销售提效工具 · 2026版</div>
+  </div>
+  <div class="search-bar">
+    <span class="icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="搜索产品、流程、政策...">
+  </div>
+</header>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('products')">📦 产品货架</button>
+    <button class="tab-btn" onclick="switchTab('processes')">📋 流程与规则</button>
+    <button class="tab-btn" onclick="switchTab('approvals')">🔑 审批矩阵</button>
+    <button class="tab-btn" onclick="switchTab('resources')">📖 资源手册</button>
+  </div>
+
+  <!-- ====== PRODUCTS TAB ====== -->
+  <div id="tab-products" class="tab-panel active">
+    <div class="quick-tools" id="productFilters">
+      <button class="quick-tool active" onclick="filterProducts('all', this)">全部产品</button>
+      <button class="quick-tool" onclick="filterProducts('geo', this)">GEO 相关</button>
+      <button class="quick-tool" onclick="filterProducts('search', this)">搜索推广</button>
+      <button class="quick-tool" onclick="filterProducts('display', this)">展示广告</button>
+      <button class="quick-tool" onclick="filterProducts('overseas', this)">出海业务</button>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="no-result" id="noProductResult">未找到匹配的产品</div>
+  </div>
+
+  <!-- ====== PROCESSES TAB ====== -->
+  <div id="tab-processes" class="tab-panel">
+    <div class="quick-tools" id="processFilters">
+      <button class="quick-tool active" onclick="filterProcesses('all', this)">全部流程</button>
+      <button class="quick-tool" onclick="filterProcesses('dev', this)">🔍 客户开发</button>
+      <button class="quick-tool" onclick="filterProcesses('sign', this)">📝 签约框架</button>
+      <button class="quick-tool" onclick="filterProcesses('launch', this)">🚀 投放运营</button>
+      <button class="quick-tool" onclick="filterProcesses('settle', this)">💰 激励结算</button>
+    </div>
+    <div id="processList"></div>
+  </div>
+
+  <!-- ====== APPROVALS TAB ====== -->
+  <div id="tab-approvals" class="tab-panel">
+    <div id="approvalMatrix"></div>
+  </div>
+
+  <!-- ====== RESOURCES TAB ====== -->
+  <div id="tab-resources" class="tab-panel">
+    <div class="quick-tools" id="resourceFilters">
+      <button class="quick-tool active" onclick="filterResources('all', this)">全部资源</button>
+      <button class="quick-tool" onclick="filterResources('pc_nav', this)">PC导航</button>
+      <button class="quick-tool" onclick="filterResources('pc_safe', this)">PC安全卫士</button>
+      <button class="quick-tool" onclick="filterResources('pc_browser', this)">PC浏览器</button>
+      <button class="quick-tool" onclick="filterResources('mobile', this)">移动端</button>
+      <button class="quick-tool" onclick="filterResources('search_b', this)">搜索品牌</button>
+      <button class="quick-tool" onclick="filterResources('onebox', this)">OneBox</button>
+    </div>
+    <div id="resourceList"></div>
+  </div>
+</div>
+
+<!-- Product Detail Modal -->
+<div class="overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle"></h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="img-overlay" id="imgOverlay" onclick="closeImg()">
+  <img id="imgOverlayImg" src="" alt="">
+</div>
+
+<script>
+// ====== DATA ======
+const products = [
+  {
+    id: 'geo',
+    name: '360智见 2.0 GEO',
+    icon: '🎯',
+    iconBg: '#eff6ff',
+    sub: 'AI品牌资产全链路运营中台 · 信通院首批认证',
+    tags: [{t:'核心产品',c:'hot'},{t:'GEO 2.0',c:''},{t:'信通院认证',c:''}],
+    cat: 'geo',
+    sections: [
+      { title: '产品定位', content: '360智见 2.0 — AI时代品牌资产全链路运营中台。依托360智脑大模型原生技术，打通售前诊断→知识图谱→语义分析→拓词生文→权威信源分发→售后验收全业务闭环，让品牌真实内容被各大AI精准理解、优先引用、权威背书。' },
+      { title: '覆盖平台', content: '7大主流AI平台：DeepSeek / 豆包 / 元宝 / Kimi / 通义千问 / 文心一言 / 智谱。支持按1个或2个平台重点优化。' },
+      { title: '合规背书', items: ['🏅 信通院首批GEO服务可信评测认证', '📜 深度参与GEO团体标准核心制定', '🛡️ 神盾镜 — 国家专利级信息安全防护'] },
+      { title: '报价结构（刊例）', content: '品牌词 3,000元/季(1平台) / 4,200(2平台)；地区排名词 4,500/6,300；全国排名词 5,500/7,700；品类词A档(保排名) 询价；品类词B档(轻享保收录≥50词条/周) 询价；意图词包(主词+20词条) 询价。承诺达标率≥80%。' },
+      { title: '交付标准', items: ['品牌词：收录≥20篇，正面中立≥70%', '排名词：80%概率搜索前三，达标率≥80%', '品类词A档：80%概率排名前三', '品类词B档：每周收录≥50词条，支持词条轮动', '意图词包：主词80%前三 + 词条收录≥5个'] },
+      { title: '360独家优势', items: ['搜索原生架构：360搜索+浏览器双引擎，自然结果优先展示', '自研智脑大模型：无需依赖第三方LLM，技术壁垒', '自有独家媒体：覆盖浏览器/卫士/地图/资讯多端，15万+媒体矩阵', '三步极简拓词：品牌词→一键拓词→裂变覆盖全维度提问场景'] },
+      { title: '竞品参考', content: '欧博(GEO产品培训) —— 主要竞品；防套路指南包含9类常见坑（虚假排名、AI投毒、批量水文等），详见客户自浏览工具FAQ。' }
+    ],
+    onboarding: [
+      {step:'1. 开户准入', desc:'KA-CRM系统录入广告主资料，客户管理组审核，行业部leader分配。提交规范：QHSCS-CAS-GEO1.0-2'},
+      {step:'2. 品牌诊断扫描', desc:'运营侧扫描品牌在7大AI平台的收录/推荐情况，输出诊断报告，确定优化方向'},
+      {step:'3. 知识图谱与拓词', desc:'基于品牌核心词+长尾词+竞品词，极简拓词：输入品牌词→一键拓词→一键添加，裂变覆盖全维度提问场景'},
+      {step:'4. 权威信源生产分发', desc:'按策略批量生产权威信源内容→分发至多个平台+15万+媒体库。确保被各大AI优先抓取'},
+      {step:'5. 效果监控与迭代', desc:'定期出效果报告（各平台收录率/排名、AI问答出现率、曝光量级），数据可追溯/可验证/可自测'}
+    ],
+    materials: [
+      {type:'must', text:'广告主营业执照（三证合一）'},
+      {type:'must', text:'ICP备案信息（需与广告主主体一致，否则需委托推广证明）'},
+      {type:'must', text:'网站URL（可正常打开）'},
+      {type:'must', text:'行业资质证明（如涉及金融/医疗/教育等特殊行业）'},
+      {type:'must', text:'企业基本信息（全称/联系方式/主营业务/产品优势/荣誉/排名数据）'},
+      {type:'opt', text:'委托推广证明（ICP主体≠广告主时，需双公章）'},
+      {type:'opt', text:'品牌词清单（核心词+长尾词+竞品词，加速知识图谱搭建）'},
+      {type:'opt', text:'历史内容资产（已有文章/白皮书/案例，可直接复用优化）'}
+    ],
+    redlines: ['网站ICP备案主体必须与广告主一致，不一致需委托推广证明', '特殊行业（医疗/金融）须提供行业许可证', '开户信息（名称/URL/所属组别/省市）必须准确无误', '电话/官网信息需与企查查等第三方平台保持一致，否则影响AI收录'],
+  },
+  {
+    id: 'overseas_safe',
+    name: '360安全卫士·海外版',
+    icon: '🛡️',
+    iconBg: '#ecfdf5',
+    sub: '海外商业化广告资源 · 安全卫士客户端流量',
+    tags: [{t:'出海',c:'new'},{t:'客户端',c:''}],
+    cat: 'overseas',
+    sections: [
+      { title: '产品定位', content: '基于360安全卫士海外版客户端流量的商业化广告资源，覆盖东南亚、北美、欧洲、中东等多个海外市场。依托360安全卫士海外过亿用户基数，提供开屏、弹窗、固定位、软件管家推荐位等多元化广告资源，助力中国企业高效出海获客。' },
+      { title: '目标客户', content: '面向海外华人及本地用户的广告主：工具类App（清理/杀毒/浏览器）、跨境电商（Shopee/Lazada/独立站）、游戏出海（SLG/RPG/休闲）、金融科技（借贷/支付/虚拟币）、直播社交等。' },
+      { title: '资源类型', items: ['客户端开屏广告：用户启动安全卫士时强制曝光，支持图片/视频/GIF，3-5秒展示', '弹窗/Push广告：系统级弹窗推送，日均可触达千万级用户，支持Deeplink拉起App', '固定位展示广告：客户端内嵌Banner/矩形位，常驻曝光适合品牌持续投放', '软件管家推荐位：海外版应用商店内推荐位，直接带动下载转化'] },
+      { title: '售卖方式', content: '支持CPM/CPC竞价及CPT固定排期两种模式。CPT按月售卖，适合品牌类大预算客户；竞价模式适合效果类客户按转化优化。投放粒度支持分国家/地区/语言定向。' },
+      { title: '核心卖点', items: ['🌏 精准触达海外华人+本地双人群，东南亚市场覆盖率领先', '📱 系统级广告位用户无法屏蔽，真实曝光和点击率远高于浏览器广告', '💰 出海广告性价比高，CPM价格约为Google/Facebook同类资源的60-70%', '🔧 支持Deeplink直达App内指定页面，缩短转化路径'] }
+    ],
+    onboarding: [
+      {step:'1. 开户准入', desc:'遵循出海业务客户开发规则。CRM录入→审核→行业部leader分配。海外版适用出海业务独立规则'},
+      {step:'2. 广告位选择', desc:'根据客户行业/目标市场，匹配安全卫士客户端广告位（开屏/弹窗/固定位/软件管家推荐位）'},
+      {step:'3. 素材提交与审核', desc:'按广告位规格提交素材，通过360审核+目标市场内容合规审核'},
+      {step:'4. 投放执行', desc:'CPI/CPS排期确认，资源组执行上线'}
+    ],
+    materials: [
+      {type:'must', text:'广告主营业执照（含英文翻译件，如目标市场要求）'},
+      {type:'must', text:'广告素材（按各广告位规格）'},
+      {type:'must', text:'目标市场/预算/周期确认'},
+      {type:'opt', text:'广告落地页（需符合目标国家法规）'}
+    ],
+    redlines: ['素材须符合目标国家/地区内容审核法规', '软件管家新版广告位迁移（过渡期至2024.5.31），旧版已取消的广告位不可售卖', '出海客户独立规则，不与国内客户混淆'],
+  },
+  {
+    id: 'search_ocpc',
+    name: '搜索推广 oCPC',
+    icon: '🔍',
+    iconBg: '#fff7ed',
+    sub: '智能出价 · 目标转化成本优化',
+    tags: [{t:'效果广告',c:'hot'},{t:'oCPC',c:''}],
+    cat: 'search',
+    sections: [
+      { title: '产品定位', content: '基于转化目标的智能出价系统，依托360搜索海量用户搜索意图数据，通过AI模型实时预估每次点击的转化概率并动态调整出价。支持浅层转化目标（点击/注册/下载/留资）和深层转化目标（LTV/付费/复购），实现从「买流量」到「买转化」的升级。' },
+      { title: '出价模式', items: ['稳定成本模式：以目标转化成本为约束，AI在成本线附近探索最优流量组合，适合追求成本可控的广告主', '增强模式：在目标成本基础上适度激进探索更高转化人群，成本可能上浮10-20%但转化量提升明显', 'NoBid模式：完全交由系统自动出价，以最大化转化为目标，适合对成本不敏感、追求放量的场景'] },
+      { title: '赔付规则', content: '超成本≥20%可赔付；学习阶段30天内；保障期间不得修改出价/预算/定向。注意：增强模式不享受赔付，NoBid模式不享受赔付。具体细则参见赔付规则文档。' },
+      { title: '适用场景', items: ['电商行业：以「下单」「加购」为转化目标，实现ROI最大化', '游戏行业：以「注册」「付费」为双目标，兼顾获客量和付费质量', '金融行业：以「授信完成」「开户」为深层目标，精准锁定高价值用户', '教育/网服：以「留资」「下载」为浅层目标，获取销售线索'] },
+      { title: '优化策略', content: '冷启动建议用稳定成本模式跑通模型（3-7天），学习成功后数据积累>50个转化可尝试切换增强模式放量。每周根据实际CPA调整目标出价≤20%，切忌频繁大幅调整。大促期间（618/双11）建议提前1-2周提价跑量。' }
+    ],
+    onboarding: [
+      {step:'1. 账户开户', desc:'遵循KA或SME提交规范。KA走QHSCS-CAS-KAQD2.0-13，SME走QHSCS-CAS-SMEQD2.0-13。CRM录入→审核→分配'},
+      {step:'2. 转化目标配置', desc:'确定转化目标类型（浅层：注册/下载/留资；深层：付费/LTV）。配置转化跟踪代码'},
+      {step:'3. 投放包搭建', desc:'在点睛平台创建oCPC投放包，设置目标转化成本、出价模式（稳定成本/增强/NoBid）'},
+      {step:'4. 学习阶段', desc:'系统自动学习（通常3-7天）。学习期禁止大幅调整出价，每天修改≤1次且下调≤30%'},
+      {step:'5. 稳定投放', desc:'学习成功后进入稳定期。按优化手册策略逐步放量，每次出价调整≤20%'}
+    ],
+    materials: [
+      {type:'must', text:'广告主资质（同KA/SME准入标准）'},
+      {type:'must', text:'转化跟踪代码部署完成'},
+      {type:'must', text:'推广计划+关键词+创意物料就绪'},
+      {type:'opt', text:'历史转化数据（如有，可加速冷启动）'},
+      {type:'opt', text:'行业模型申请（小体量客户适用，需满足A+B条件）'}
+    ],
+    redlines: ['学习期内每日出价修改≤1次，下调幅度≤30%', '增强模式不享受超成本赔付', '修改落地页链接会导致学习阶段回退'],
+  },
+  {
+    id: 'search_brand',
+    name: '搜索品牌广告',
+    icon: '⭐',
+    iconBg: '#fef2f2',
+    sub: '品直 · AI高级样式 · 云推数字人',
+    tags: [{t:'品牌',c:''},{t:'AI样式',c:'new'}],
+    cat: 'search',
+    sections: [
+      { title: '产品定位', content: '搜索品牌词触发广告，含基础样式4个+高级样式14个+霸屏样式1个，共19种展示形态。AI品直创新接入360智脑大模型，支持数字人实时互动问答，将品牌搜索广告从「静态展示」升级为「AI对话式体验」。PC端搜索结果页顶部/右侧独占、移动端首屏黄金位置，拦截品牌核心搜索流量。' },
+      { title: '样式详解', items: ['PC品直AI高级样式：搜索结果顶部大图+AI智能问答入口，用户可向品牌数字人提问，AI实时生成回答，大幅提升停留时长和品牌专业度感知', '移动品直云推(数字人)：手机搜索结果页嵌入品牌数字人形象，支持语音/文字交互，直接引流至H5落地页或App下载', '品牌直达(基础)：品牌搜索结果顶部固定展示，包含Logo+品牌名称+官网链接+简介描述，基础拦截竞品流量', '品牌专区(高级)：品牌词触发右侧品牌专属区域，展示多Tab内容（产品/活动/案例/资讯），视觉冲击力强'] },
+      { title: '售卖方式', content: 'CRM询价-词包流量评估；按月售卖，支持换词（1月1次）；新增语料需3工作日训练后生效。AI品直语料需线下邮件AE单独过审。' },
+      { title: '适用行业', items: ['汽车：品牌词+车型词覆盖，AI品直可展示车型参数/配置对比/试驾预约', '金融：品牌词+产品词（信用卡/贷款/理财），合规话术通过AI自动应答', '3C/家电：产品词触发AI参数对比与购买链接直达，缩短决策路径', '教育/医疗：品牌词建立信任屏障，避免竞品截流', '快消/美妆：品专+品牌故事+明星代言，提升品牌调性'] },
+      { title: '竞品壁垒价值', content: '品牌广告的核心价值不仅是曝光，更是「品牌词搜素结果的第一控制权」。在品牌词下，如果不投品牌广告，搜索结果前几位大概率被竞品买走。品直+品专组合可实现对品牌词的100%屏占率。' }
+    ],
+    onboarding: [
+      {step:'1. 开户准入', desc:'KA客户按QHSCS-CAS-KAQD2.0-13规范提交。品牌广告需额外确认品牌词归属权'},
+      {step:'2. 词包询价', desc:'在CRM系统提交词包进行流量及C影响评估。确认品牌词、产品词、泛品牌词范围'},
+      {step:'3. 物料准备', desc:'按品直样式物料单准备：基础样式4个+高级样式14个+霸屏。AI品直需额外准备知识库FAQ语料'},
+      {step:'4. 语料审核', desc:'生成式语料需线下邮件AE同学单独过广告审核。新语料提供后需3工作日训练，一个月最多换词1次'},
+      {step:'5. 按月售卖', desc:'CRM询价确认后按月售卖，支持正常换词。如换词需更新知识库&FAQ→3工作日训练后生效'}
+    ],
+    materials: [
+      {type:'must', text:'品牌词/产品词/泛品牌词清单'},
+      {type:'must', text:'品直样式物料（基础4+高级14+霸屏1）'},
+      {type:'must', text:'AI品直：知识库FAQ语料（生成式内容需单独审核）'},
+      {type:'opt', text:'数字人形象素材（移动品直云推）'},
+      {type:'opt', text:'品牌VI素材包'}
+    ],
+    redlines: ['生成式语料必须线下邮件AE单独审核', '一个月最多支持换词1次', '新增语料需3工作日训练后生效'],
+  },
+  {
+    id: 'display_ad',
+    name: '展示广告体系',
+    icon: '🖼️',
+    iconBg: '#f0fdf4',
+    sub: 'PC展示 · 信息流 · 橱窗 · 优品 · 全站智选',
+    tags: [{t:'展示',c:''},{t:'oCPX',c:'hot'}],
+    cat: 'display',
+    sections: [
+      { title: '产品定位', content: '360自有流量+联盟流量的展示广告体系，月活跃用户超5亿，日均广告请求超百亿次。产品矩阵涵盖PC展示广告、信息流广告、橱窗广告、优品广告四大类，通过oCPX智能出价+全站智选创意实现「自动化投放+智能化优化」的一条龙解决方案。' },
+      { title: '流量规模', content: '360导航日活1.2亿+，新版首页CPT独占首屏100%曝光；信息流日均PV超8亿，覆盖360浏览器/搜索/卫士多端；PC展示联盟覆盖超过50万家合作媒体，形成全场景流量矩阵。' },
+      { title: '关键功能', items: ['全站智选创意：只需上传一张基础素材，AI自动生成匹配全广告位的多尺寸多形态创意，省去繁琐的素材适配工作', 'oCPX智能出价：以激活/注册/付费为目标，AI自动优化出价，新广告主三天内完成冷启动', '自动化规则引擎：自定义设置预算/出价/时段的自动调整规则，24小时智能托管，节假日也不用人工盯盘', '优质素材榜单：展示行业Top素材的CTR和CVR数据，支持一键套用模板', 'AI文案创作：输入产品卖点→AI自动生成多版本文案，A/B测试选出最优'] },
+      { title: '创意工具', content: '易动画：静态图片一键生成动态素材，支持多种动效模板；富媒体创意：支持视频/轮播/360全景/互动H5等创新格式；易托管建站：零代码搭建落地页，内置咨询组件/表单/优惠券等功能模块；OpenAPI全量接口：支持程序化投放，对接DSP/Trading Desk等外部系统。' },
+      { title: '资源矩阵', content: '360导航新版首页CPT — 品牌大曝光首选，日均曝光量亿级；软件管家新版资源位 — 高意图软件下载用户，适合工具/游戏类；PC展示联盟 — 全网50万+媒体覆盖，适合效果类大规模投放；信息流 — 原生融入内容流，CTR是Banner的3-5倍。' },
+      { title: '适用客户画像', content: '电商/游戏/金融/教育/网服五大赛道为主。电商适合信息流+橱窗组合引流至单品页；游戏适合软件管家+全站智选多渠道覆盖；金融/教育适合oCPX以留资为目标的精准投放；品牌广告主适合CPT导航首页独占位做声量。' }
+    ],
+    onboarding: [
+      {step:'1. 开户准入', desc:'KA客户走QHSCS-CAS-KAQD2.0-13，SME客户走QHSCS-CAS-SMEQD2.0-13。CRM录入→审核→分配'},
+      {step:'2. 资源选择', desc:'根据客户目标/预算选择资源类型：CPT(导航首页/软件管家)、CPM(展示网络/信息流)、OCPX(效果优化)'},
+      {step:'3. 创意搭建', desc:'在点睛平台创编：全站智选自动生成多尺寸、或手动制作特定尺寸。可借助AI文案创作+优质素材榜单'},
+      {step:'4. 排期/投放', desc:'CPT按月排期，CPM/OCPX实时竞价。自动化规则可设置预算/出价自动调整'},
+      {step:'5. 数据监控', desc:'效果评估报告支持多维度筛选，创意组合报表支持实时数据。落地页宏参数可追踪素材级效果'}
+    ],
+    materials: [
+      {type:'must', text:'广告主资质（同KA/SME标准）'},
+      {type:'must', text:'创意素材（图片/视频，按广告位规格）'},
+      {type:'must', text:'落地页URL（如用易托管建站则无需提供）'},
+      {type:'opt', text:'全站智选：无需提供多尺寸，系统自动裁剪'},
+      {type:'opt', text:'宏参数配置（doc_id/image_id/video_id 追踪素材级效果）'}
+    ],
+    redlines: ['CPT资源位变更需关注（导航新版首页、软件管家新版广告位迁移）', '修改落地页链接会导致OCPX学习阶段回退', '站外收入占比不增长（控制联盟流量成本）'],
+  },
+  {
+    id: 'nano_drama',
+    name: '纳米漫剧流水线',
+    icon: '🎬',
+    iconBg: '#fdf4ff',
+    sub: 'AI短剧制作 · 批量生产漫剧内容',
+    tags: [{t:'新产品',c:'new'},{t:'AI',c:''}],
+    cat: 'display',
+    sections: [
+      { title: '产品定位', content: '面向广告主的AI短剧/漫剧批量生产工具，通过「AI脚本→AI绘图→AI配音→AI剪辑」全自动化流水线，日均产能可达50+集。支持搞笑、情感、悬疑、科普、穿越等多种风格，输出横版/竖版多规格素材，直接对接360展示广告体系投放。解决广告主「视频素材产量跟不上消耗」的核心痛点。' },
+      { title: '制作规格', items: ['单集时长：15秒-3分钟灵活可选，支持短剧连载模式', '画风选择：二次元动漫/3D渲染/手绘风格/像素风/写实风共5种', '配音方案：AI语音合成支持中/英/日/韩/泰等12种语言，多种声线可选', '输出格式：横版16:9 + 竖版9:16双版本，适配信息流/开屏/贴片等全广告位'] },
+      { title: '目标客户', content: '游戏（SLG剧情漫剧/休闲游戏趣味短片）、电商（产品种草短剧/使用场景演绎）、网服（App功能介绍/用户故事）、教育（知识科普动画/课程推广短剧）、金融（理财知识动画/产品解说动画）。核心价值：一个Brief进去，批量素材出来，彻底解决视频素材产能瓶颈。' },
+      { title: '交付周期', content: '首次合作：Brief确认后3-5个工作日交付第一批样片（3-5集），客户反馈修改1-2个工作日，确认后进入批量生产。量产阶段日均产能50集+，紧急需求可加急48小时出片。支持按周/按月订阅制持续产出。' },
+      { title: '报价参考', content: '按集计费，单集价格根据画风复杂度（手绘>3D>二次元）、时长、是否需要真人参考形象等因素浮动。基础版约300-500元/集，精品版500-1000元/集。量大从优，月产100集以上享阶梯折扣。首次合作可免费试产3集样片。' },
+      { title: '与传统制作对比', items: ['成本：传统动画外包约3000-8000元/分钟 → 纳米漫剧约300-500元/集（1-3分钟），成本降低80%+', '产能：传统外包月产10-20集 → AI流水线月产1000+集，产能提升50倍', '迭代速度：传统修改需2-3天 → AI重新生成仅需2-3小时', '创意多样性：传统受制于单一制作团队风格 → AI支持5种画风+数十种脚本角度快速切换'] }
+    ],
+    onboarding: [
+      {step:'1. 需求沟通', desc:'确认客户品牌/产品、目标受众、短剧风格（搞笑/情感/悬疑/科普等）、集数和时长'},
+      {step:'2. 脚本创作', desc:'AI根据客户需求生成漫剧脚本，人工审核调整。确认角色设定、画风、配音方案'},
+      {step:'3. AI批量生产', desc:'流水线批量生成漫剧：AI绘图→AI配音→AI剪辑→自动合成为完整短剧'},
+      {step:'4. 素材适配', desc:'将短剧素材适配为信息流投放规格（横版/竖版、不同时长版本）'},
+      {step:'5. 投放与迭代', desc:'对接展示广告体系投放，根据数据表现迭代内容方向'}
+    ],
+    materials: [
+      {type:'must', text:'客户品牌/产品Brief（核心信息、调性要求、禁用语）'},
+      {type:'must', text:'目标受众画像（年龄/性别/兴趣）'},
+      {type:'opt', text:'客户现有素材（logo/VI/历史视频，用于风格参考）'},
+      {type:'opt', text:'竞品参考素材'}
+    ],
+    redlines: ['漫剧内容须符合广告法及平台审核规范', '不得含虚假宣传/夸大疗效等内容'],
+  }
+];
+
+const processes = [
+  // ---- 客户开发 ----
+  {
+    phase: '客户开发',
+    cat: 'dev',
+    color: '#2563eb',
+    items: [
+      {
+        title: '出海业务客户开发规则',
+        summary: '先到先得 · CRM录入为准 · 保护期1个月 · 最多3次申请',
+        checklist: [
+          {type:'must', text:'客户录入KA-CRM系统，确保广告主名称/URL/ICP备案信息正确'},
+          {type:'must', text:'同一销售对同一客户申请不超过3次'},
+          {type:'info', text:'保护期1个月；保护期内未下单，其他销售可申请'},
+          {type:'info', text:'保护期内转移需原销售确认邮件'},
+          {type:'info', text:'生效客户(近6个月日均>10元)转移需行业部/群组leader审批'}
+        ],
+        redlines: ['3次申领未成单则不可再申请该客户', '盗用他人客户按违规判罚'],
+        source: '2026年商业化出海业务客户开发规则.docx'
+      },
+      {
+        title: '销售归属与客户流转',
+        summary: '公共池每周推送 · 非公共池需审批 · 行业复位季度执行',
+        checklist: [
+          {type:'must', text:'公共池名单每周一系统自动推送至行业群邮件组'},
+          {type:'must', text:'公共池转移：客管组发原归属方，1工作日内确认'},
+          {type:'opt', text:'原销售保留公共池客户：提供有效下单邮件，可延期1个月'},
+          {type:'info', text:'生效客户跨行业部转移：需行业群组leader确认邮件'},
+          {type:'info', text:'跨行业开发客户4个季度后行业复位，归位至所属行业部'}
+        ],
+        redlines: ['原销售对同一公共池客户不得再次申请保留', '同组内客户转移最多2次（离职等特殊情况除外）'],
+        source: '行业群组销售体系业务操作手册-2026.docx'
+      },
+      {
+        title: '新客户准入与分级',
+        summary: 'KA/SME标准 · 行业归属判定 · 信用评估 · 预付款/后付费',
+        checklist: [
+          {type:'must', text:'KA客户：日均消耗≥500元，后付费模式，需信用评估通过'},
+          {type:'must', text:'SME客户：日均消耗<500元，预付费模式，充值后投放'},
+          {type:'info', text:'行业归属判定：按广告主主营业务判定行业部归属'},
+          {type:'info', text:'跨行业客户：由行业群组leader协商确定归属'},
+          {type:'info', text:'信用评估：KA客户需提交近1年财务报表+银行流水'}
+        ],
+        redlines: ['行业归属有争议时由群组leader最终裁定', '合同未归档的客户不享受返点政策'],
+        source: '行业群组销售体系业务操作手册-2026.docx'
+      },
+      {
+        title: '销售日常管理规范',
+        summary: '拜访记录 · 销售漏斗 · 周报提交 · 预测准确率',
+        checklist: [
+          {type:'must', text:'每日CRM录入拜访记录，包括拜访方式/内容/下一步计划'},
+          {type:'must', text:'每周五18:00前提交周报（含本周总结+下周计划+机会漏斗）'},
+          {type:'must', text:'月度预测准确率≥70%（实际/预测偏差不超过30%）'},
+          {type:'info', text:'销售漏斗四阶段：线索→商机→签约→投放'},
+          {type:'info', text:'机会漏斗更新频率≥每周1次，重大变化48小时内更新'}
+        ],
+        redlines: ['连续2次以上未提交周报计入考勤异常', '月度预测准确率连续3个月<50%需leader面谈'],
+        source: '行业群组销售体系业务操作手册-2026.docx'
+      }
+    ]
+  },
+  // ---- 签约框架 ----
+  {
+    phase: '签约与框架',
+    cat: 'sign',
+    color: '#7c3aed',
+    items: [
+      {
+        title: '2026大客户框架政策',
+        summary: 'A/B类行业 · 10%保证金 · 框架优惠比例返点 · 升框/降框规则',
+        checklist: [
+          {type:'must', text:'框架标准周期12个月，开始≥2026.1.1，结束≤2026.12.31'},
+          {type:'must', text:'保证金=框架金额×10%；升框补足5%'},
+          {type:'must', text:'关联关系客户需提供关联关系证明'},
+          {type:'info', text:'A类/B类行业政策对照（详见政策附件一）'},
+          {type:'info', text:'框架完成100%以上可返还全部保证金'},
+          {type:'info', text:'跨季度不可追返，需签署补充协议调整为次季度优惠'},
+          {type:'info', text:'可享受优惠产品仅限在线竞价类产品（附件二）'}
+        ],
+        redlines: ['框架未完成：扣除保证金+已享受的所有优惠', '联合框架：总金额未完成则所有框架均按未完成处理'],
+        source: '360 2026年大客户框架政策-1209.docx',
+        timeline: [
+          {step:'签署框架合同', desc:'确定框架金额、行业分类(A/B)、周期'},
+          {step:'支付保证金', desc:'金额×10%，关联公司提供证明'},
+          {step:'季度返点', desc:'按框架完成进度享受优惠比例'},
+          {step:'框架到期', desc:'完成→返保证金；未完成→扣保证金+追回优惠'}
+        ]
+      },
+      {
+        title: '合同归档规则2026',
+        summary: '季度考核 · 5工作日内归档 · 未归档影响奖金',
+        checklist: [
+          {type:'must', text:'合同签订后5个工作日内归档'},
+          {type:'must', text:'特殊情况最晚当季度最后一个月底前归档'},
+          {type:'opt', text:'无法按时归档需走特批→法务调整为"标记归档"'},
+          {type:'info', text:'当季度提交的合同应当季度归档'}
+        ],
+        redlines: ['合同未归档影响代理商/客户优惠政策发放及销售奖金', '往期未归档合同需在当季度补齐'],
+        source: '合同归档规则2026版.docx'
+      },
+      {
+        title: '框架合同签署流程',
+        summary: '合同模板选择 · 法务审核 · 签署方式 · 归档标准',
+        checklist: [
+          {type:'must', text:'选择正确合同模板（A类/B类行业模板不同，附件一确认）'},
+          {type:'must', text:'合同条款涉及特批/特殊返点需法务邮件审核通过'},
+          {type:'must', text:'电子签章：点睛系统电子签；纸质签：双公章+骑缝章'},
+          {type:'info', text:'联合纳框需额外提供关联关系证明+所有关联方盖章'},
+          {type:'info', text:'合同附件（返点表/产品清单/结算条款）需一并归档'}
+        ],
+        redlines: ['无合同投放视为违规操作', '合同签章主体与CRM广告主信息必须一致'],
+        source: '360 2026年大客户框架政策-1209.docx'
+      },
+      {
+        title: '框架执行与过程监控',
+        summary: '季度进度追踪 · 完成率预警 · 中途变更处理',
+        checklist: [
+          {type:'must', text:'每季度结束后10个工作日内完成季度返点核算'},
+          {type:'must', text:'框架完成率<50%时触发预警，销售需提交书面说明及补救方案'},
+          {type:'must', text:'中途升框：补足保证金差额(5%)，签署补充协议'},
+          {type:'info', text:'中途降框：需行业群组leader+销管双重审批，原则上不允许'},
+          {type:'info', text:'框架未完成处置流程：销管核算→群组leader审核→商业化负责人审批'}
+        ],
+        redlines: ['框架未完成：扣除保证金+追回已享受优惠', '跨季度追返：原则上不允许，需签署补充协议调整为次季度优惠'],
+        source: '360 2026年大客户框架政策-1209.docx'
+      }
+    ]
+  },
+  // ---- 投放运营 ----
+  {
+    phase: '投放与运营',
+    cat: 'launch',
+    color: '#059669',
+    items: [
+      {
+        title: '搜索oCPC赔付规则',
+        summary: '超成本≥20% · 学习阶段30天 · 按包维度赔付',
+        checklist: [
+          {type:'must', text:'出价模式必须为"稳定成本"（增强模式不赔付）'},
+          {type:'must', text:'超成本≥20%（目标成本10元，转化成本≥12元）'},
+          {type:'must', text:'投放包未进行过超成本赔付计算'},
+          {type:'must', text:'赔付时间：学习阶段当天+30个自然日内'},
+          {type:'must', text:'每日目标转化成本修改≤1次，向下调整幅度不超过前次30%'}
+        ],
+        redlines: ['某天操作不满足→当天及之后2天不赔付', '增强模式不赔付'],
+        source: '搜索oCPC赔付规则+838特殊赔付规则',
+        calc: '赔付金额 = 总实际消费 - [目标成本×对应转化数×1.2] 之和；核算时间：投放后第15天'
+      },
+      {
+        title: 'KA/SME/GEO 客户提交规范',
+        summary: '资质审核 · 行业准入 · 素材规范',
+        checklist: [
+          {type:'must', text:'KA: QHSCS-CAS-KAQD2.0-13规范'},
+          {type:'must', text:'SME: QHSCS-CAS-SMEQD2.0-13规范'},
+          {type:'must', text:'GEO: QHSCS-CAS-GEO1.0-2规范'},
+          {type:'info', text:'委托推广需提供委托推广证明（盖章）'},
+          {type:'info', text:'ICP备案需与广告主一致'},
+          {type:'info', text:'工商更名需上传工商更名函'}
+        ],
+        redlines: ['资质不全/不符不可上线', '网站信息与备案主体不一致需委托证明'],
+        source: 'KA/SME/GEO产品提交规范PDF'
+      },
+      {
+        title: '搜索oCPC优化手册',
+        summary: '学习成功后的放量策略 · 账户排查方法',
+        checklist: [
+          {type:'info', text:'学习成功后逐步放量，单次出价调整≤20%'},
+          {type:'info', text:'关注转化成本偏差（实际/目标）'},
+          {type:'info', text:'排查步骤：包状态→转化数→竞争环境→落地页'},
+          {type:'opt', text:'行业模型申请：满足A+B条件→行运评估→产研确认'}
+        ],
+        source: '搜索oCPC优化思路-学习成功.pdf'
+      },
+      {
+        title: '素材审核与合规规范',
+        summary: '广告法合规 · 行业特殊审核 · 素材退回与修改',
+        checklist: [
+          {type:'must', text:'广告素材不得含虚假/夸大/极限用语（第一/最/国家级等）'},
+          {type:'must', text:'特殊行业（医疗/金融/教育/游戏）需额外提供行业许可证'},
+          {type:'must', text:'涉及人物肖像/商标需提供授权证明'},
+          {type:'must', text:'素材修改后需重新提交审核，审核周期1-3个工作日'},
+          {type:'info', text:'常用素材规格清单见点睛平台→素材中心→规格一览'},
+          {type:'info', text:'全站智选广告由系统自动裁剪，无需手动准备全部尺寸'}
+        ],
+        redlines: ['素材涉及违法内容(黄赌毒/政治敏感)永久封禁广告主', '素材审核未通过不可上线投放'],
+        source: 'KA/SME/GEO产品提交规范'
+      },
+      {
+        title: '投放异常与申诉流程',
+        summary: '异常类型识别 · 申诉提交 · 赔补核算 · 时效要求',
+        checklist: [
+          {type:'must', text:'异常发现后24小时内通过CRM/点睛发起异常申诉工单'},
+          {type:'must', text:'申诉需附带：异常截图/时间段/影响消耗金额/预期赔付方案'},
+          {type:'must', text:'标准赔付：错一补一，消耗差额100%补偿'},
+          {type:'must', text:'特殊补偿：需资源管理组评估后报销管+商业化负责人审批'},
+          {type:'info', text:'常见异常：超量投放/定向偏差/转化归因错误/数据延迟'}
+        ],
+        redlines: ['异常申诉超过7个自然日不予受理', '重复同一类型异常3次以上暂停该客户投放并排查系统'],
+        source: '搜索oCPC赔付规则'
+      },
+      {
+        title: '账户诊断与优化指南',
+        summary: '四维诊断框架 · 优化策略 · A/B测试方法',
+        checklist: [
+          {type:'info', text:'一维-消耗诊断：确认预算/出价/抢量是否正常'},
+          {type:'info', text:'二维-转化诊断：检查转化链路/落地页加载/表单功能'},
+          {type:'info', text:'三维-素材诊断：CTR是否达标/素材与人群匹配度/更新频率'},
+          {type:'info', text:'四维-竞争诊断：竞品出价/市场份额/行业流量波动'},
+          {type:'opt', text:'A/B测试：每次仅变1个变量，单组跑满3-7天后对比'},
+          {type:'opt', text:'RTA策略：限量投放支持RTA，控制投放频次和人群质量'}
+        ],
+        redlines: ['单日调价超过3次触发系统风控自动暂停', '频繁修改落地页(>1次/天)导致模型重新学习'],
+        source: '搜索oCPC优化思路-学习成功.pdf'
+      }
+    ]
+  },
+  // ---- 激励结算 ----
+  {
+    phase: '激励与结算',
+    cat: 'settle',
+    color: '#ea580c',
+    items: [
+      {
+        title: '客情政策申请',
+        summary: '季度50万点睛币 · 单客户一次 · 与灵活性政策互斥',
+        checklist: [
+          {type:'must', text:'每个行业部每季度50万点睛币额度，不可跨季度'},
+          {type:'must', text:'仅可用于单体客户(非平台客户)'},
+          {type:'must', text:'同一客户同一季度仅可申请1次客情金'},
+          {type:'must', text:'政策截止时间≤季度末月24日'},
+          {type:'must', text:'政策周期不超过30天'},
+          {type:'info', text:'618/双11/春秋招等重要节点优先或避让'},
+          {type:'info', text:'增收类政策必须设置激励门槛'},
+          {type:'info', text:'政策复盘需在结束后2周内发起消费调整'}
+        ],
+        redlines: ['与灵活性政策互斥，一个客户仅能享受一种激励', '跨季度消费调整原则上不允许'],
+        approval: ['行业群组负责人审批', '备案销售管理部(骆洁/王影/李爽/刘丹/闫龑/朱文超/田晓媛)'],
+        source: '客情政策申请规范-2025.12.9.docx'
+      },
+      {
+        title: '灵活性激励政策',
+        summary: '增收/测试政策 · 多级审批 · 需每两周复盘',
+        checklist: [
+          {type:'must', text:'与客情金激励互斥'},
+          {type:'must', text:'政策开始时间必须晚于审批结束时间'},
+          {type:'must', text:'超过2周的政策必须每两周复盘一次'},
+          {type:'must', text:'站外收入占比不增长（控制联盟流量成本）'},
+          {type:'info', text:'消费调整：政策结束后2周内发起'},
+          {type:'info', text:'跨季度调整需季度结束5日前完成审批'},
+          {type:'info', text:'测试类政策需明确测试目标/方案/收益'}
+        ],
+        redlines: ['政策已结束后不可变更', '未备案跨季度调整→需行业部负责人+销管负责人双重审批'],
+        approval: ['行业部负责人', '销管负责人(骆洁)', '运营管理中心(马丽娜≥10万)', '商业化VP(LEO≥50万)'],
+        source: '行业组灵活性激励政策申请规范-2025.12.9.docx'
+      },
+      {
+        title: '结算与开票流程',
+        summary: '对账周期 · 发票规范 · 付款节点 · 逾期处理',
+        checklist: [
+          {type:'must', text:'月度对账：每月5日前生成上月对账单，客户确认后10日前开票'},
+          {type:'must', text:'发票类型：增值税专用发票（一般纳税人）/ 普通发票（小规模纳税人）'},
+          {type:'must', text:'付款期限：发票签收后30个自然日内付清；逾期按日万分之五收滞纳金'},
+          {type:'info', text:'预付费客户：充值实时到账，消费实时扣减'},
+          {type:'info', text:'超期未付款客户暂停投放，超过90天启动法务催收'}
+        ],
+        redlines: ['发票信息（抬头/税号/银行账户）错误导致无法抵扣由销售侧承担', '客户逾期超过120天计入坏账'],
+        source: '行业群组销售体系业务操作手册-2026.docx'
+      },
+      {
+        title: '销售业绩核算规则',
+        summary: '确认收入口径 · 提成比例 · 考核系数 · 发放时间',
+        checklist: [
+          {type:'must', text:'收入确认口径：实际消耗金额（非框架金额/非合同金额）'},
+          {type:'must', text:'提成=确认收入×提成比例×考核系数（月度KPI达标率）'},
+          {type:'info', text:'提成比例：标杆值0.8%-2.5%按行业部/消耗量级阶梯计算'},
+          {type:'info', text:'发放时间：提成次月与工资合并发放（20日前）'},
+          {type:'info', text:'合同未归档：暂停当季度奖金/提成发放，归档后补发'}
+        ],
+        redlines: ['合同未归档期间不享有任何消费统计和提成发放', '违规操作导致消耗/返点损失由个人承担'],
+        source: '行业群组销售体系业务操作手册-2026.docx'
+      }
+    ]
+  }
+];
+
+const approvalData = [
+  {
+    cat: '代理商管理',
+    items: [
+      {scene:'代理特殊政策', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'招标立项/结果审批', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'特批引入代理', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'代理退出审批', flow:['销售负责人','销管','HR负责人','商业化负责人']}
+    ]
+  },
+  {
+    cat: '框架管理',
+    items: [
+      {scene:'联合纳框', flow:['销售负责人','销管']},
+      {scene:'框架特批返点(内部)', flow:['销售负责人']},
+      {scene:'框架特批返点(超内部)', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'跨季度追返', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'跨年框架', flow:['销售负责人','销管']},
+      {scene:'框架保证金特批', flow:['销售负责人','销管','HR负责人','商业化负责人']},
+      {scene:'标准降框处置', flow:['销售负责人','业务分析组','销管','HR负责人','商业化负责人']},
+      {scene:'特批框架处置', flow:['销售负责人','销管','HR负责人','商业化负责人']}
+    ]
+  },
+  {
+    cat: '资源与产品',
+    items: [
+      {scene:'结算类合作报价', flow:['销售端','产品运营负责人','资源管理组(向上审批)']},
+      {scene:'价格特批/T类买赠', flow:['销售负责人','资源管理组(向上审批)']},
+      {scene:'刊例资源测试', flow:['销售/产品发起','产品运营','销管','HR负责人','商业化负责人(≥20W)']},
+      {scene:'C类资源测试充值', flow:['销售/产品发起','产品运营','销管','HR负责人','商业化负责人(≥20W)']}
+    ]
+  },
+  {
+    cat: '补量与补偿',
+    items: [
+      {scene:'标准补偿(错一补一)', flow:['销售负责人','资源管理组(向上审批)']},
+      {scene:'补量/特殊补偿', flow:['销售负责人','资源管理组(向上审批)']}
+    ]
+  },
+  {
+    cat: '激励金审批(消费调整)',
+    items: [
+      {scene:'<10万点睛币', flow:['行业部负责人','销管负责人(骆洁)']},
+      {scene:'≥10万点睛币', flow:['行业部负责人','销管负责人','运营管理中心(马丽娜)']},
+      {scene:'≥50万点睛币', flow:['行业部负责人','销管负责人','运营管理中心','商业化VP(LEO)']}
+    ]
+  }
+];
+
+// ====== FAVORITES ======
+const getFavs = () => JSON.parse(localStorage.getItem('xingsan_favs') || '[]');
+const toggleFav = (id) => {
+  const favs = getFavs();
+  const idx = favs.indexOf(id);
+  if (idx > -1) favs.splice(idx, 1); else favs.push(id);
+  localStorage.setItem('xingsan_favs', JSON.stringify(favs));
+  renderAll();
+};
+const isFaved = (id) => getFavs().includes(id);
+
+// ====== SEARCH ======
+let searchTerm = '';
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchTerm = e.target.value.toLowerCase().trim();
+  renderAll();
+});
+
+// ====== TAB ======
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  renderAll();
+}
+
+// ====== PRODUCT FILTER ======
+let productFilter = 'all';
+function filterProducts(cat, el) {
+  productFilter = cat;
+  document.querySelectorAll('#productFilters .quick-tool').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderProducts();
+}
+
+// ====== PROCESS FILTER ======
+let processFilter = 'all';
+function filterProcesses(cat, el) {
+  processFilter = cat;
+  document.querySelectorAll('#processFilters .quick-tool').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderProcesses();
+}
+
+// ====== RENDER PRODUCTS ======
+function renderProducts() {
+  const grid = document.getElementById('productGrid');
+  let filtered = products;
+  if (productFilter !== 'all') filtered = filtered.filter(p => p.cat === productFilter);
+  if (searchTerm) {
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(searchTerm) ||
+      p.sub.toLowerCase().includes(searchTerm) ||
+      p.tags.some(t => t.t.includes(searchTerm))
+    );
+  }
+  document.getElementById('noProductResult').classList.toggle('show', filtered.length === 0);
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card" onclick="openProduct('${p.id}')">
+      <div class="icon" style="background:${p.iconBg}">${p.icon}</div>
+      <h3>${highlight(p.name)} <span class="star ${isFaved('p_'+p.id) ? 'faved' : ''}" onclick="event.stopPropagation();toggleFav('p_${p.id}')">${isFaved('p_'+p.id) ? '⭐' : '☆'}</span></h3>
+      <div class="subtitle">${highlight(p.sub)}</div>
+      <div class="tags">${p.tags.map(t => `<span class="tag ${t.c||''}">${t.t}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function openProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modalTitle').innerHTML = `${p.icon} ${p.name} <span class="star ${isFaved('p_'+id) ? 'faved' : ''}" onclick="toggleFav('p_${id}');openProduct('${id}')" style="font-size:20px">${isFaved('p_'+id) ? '⭐' : '☆'}</span>`;
+  const sections = [];
+  // Basic sections
+  p.sections.forEach(s => {
+    sections.push(`
+      <section>
+        <h4>${s.title}</h4>
+        ${s.content ? `<div class="highlight-box">${s.content}</div>` : ''}
+        ${s.items ? `<ul class="checklist">${s.items.map(i => `<li><span class="bullet info">•</span>${i}</li>`).join('')}</ul>` : ''}
+      </section>
+    `);
+  });
+  // Onboarding process
+  if (p.onboarding && p.onboarding.length > 0) {
+    sections.push(`
+      <section>
+        <h4>🚀 上架流程</h4>
+        <div class="timeline">
+          ${p.onboarding.map(o => `<div class="timeline-item"><span class="step-name">${o.step}</span><div class="step-desc">${o.desc}</div></div>`).join('')}
+        </div>
+      </section>
+    `);
+  }
+  // Required materials
+  if (p.materials && p.materials.length > 0) {
+    sections.push(`
+      <section>
+        <h4>📋 所需材料</h4>
+        <ul class="checklist">
+          ${p.materials.map(m => `<li><span class="bullet ${m.type}">${m.type==='must'?'必':m.type==='opt'?'选':'i'}</span>${m.text}</li>`).join('')}
+        </ul>
+      </section>
+    `);
+  }
+  // Redlines
+  if (p.redlines && p.redlines.length > 0) {
+    sections.push(`
+      <section>
+        ${p.redlines.map(r => `<div class="redline"><strong>🚫 红线禁入</strong>${r}</div>`).join('')}
+      </section>
+    `);
+  }
+  document.getElementById('modalBody').innerHTML = sections.join('');
+  document.getElementById('productModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('productModal').classList.remove('show');
+}
+document.getElementById('productModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ====== RENDER PROCESSES ======
+function renderProcesses() {
+  const list = document.getElementById('processList');
+  let filtered = processes;
+  if (processFilter !== 'all') filtered = filtered.filter(p => p.cat === processFilter);
+  if (searchTerm) {
+    filtered = filtered.filter(p =>
+      p.phase.toLowerCase().includes(searchTerm) ||
+      p.items.some(i => i.title.toLowerCase().includes(searchTerm) || i.summary.toLowerCase().includes(searchTerm))
+    );
+  }
+  list.innerHTML = filtered.map(proc => `
+    <div class="process-section">
+      <h2 style="color:${proc.color}">📌 ${proc.phase}</h2>
+      <div class="phase-grid">
+        ${proc.items.map((item, i) => `
+          <div class="phase-card" id="phase-${proc.cat}-${i}">
+            <div class="phase-header" onclick="togglePhase('${proc.cat}-${i}')" style="border-left:3px solid ${proc.color}">
+              <div>
+                <div>${highlight(item.title)}</div>
+                <div style="font-size:11px;color:var(--sub);font-weight:400;margin-top:2px">${highlight(item.summary)}</div>
+              </div>
+              <span class="star ${isFaved('pr_'+proc.cat+'_'+i) ? 'faved' : ''}" onclick="event.stopPropagation();toggleFav('pr_${proc.cat}_${i}')">${isFaved('pr_'+proc.cat+'_'+i) ? '⭐' : '☆'}</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="phase-body">
+              ${item.checklist ? `
+                <h4 style="font-size:12px;color:var(--sub);margin-bottom:6px">📋 操作要点</h4>
+                <ul class="checklist">
+                  ${item.checklist.map(c => `
+                    <li><span class="bullet ${c.type}">${c.type==='must'?'必':c.type==='opt'?'选':'i'}</span>${highlight(c.text)}</li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+              ${item.redlines ? `
+                ${item.redlines.map(r => `<div class="redline"><strong>🚫 红线：</strong>${highlight(r)}</div>`).join('')}
+              ` : ''}
+              ${item.approval ? `
+                <div style="margin-top:8px">
+                  <h4 style="font-size:12px;color:var(--sub);margin-bottom:4px">🔑 审批链</h4>
+                  <div class="approval-chain">
+                    ${item.approval.map((a,i) => `${i>0?'<span class="approval-arrow">→</span>':''}<span class="approval-node ${i===0?'key':''}">${a}</span>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+              ${item.timeline ? `
+                <div style="margin-top:8px">
+                  <h4 style="font-size:12px;color:var(--sub);margin-bottom:4px">⏱ 时间节点</h4>
+                  <div class="timeline">
+                    ${item.timeline.map(t => `<div class="timeline-item"><span class="step-name">${t.step}</span><div class="step-desc">${t.desc}</div></div>`).join('')}
+                  </div>
+                </div>
+              ` : ''}
+              ${item.calc ? `
+                <div style="margin-top:8px;background:#f9fafb;padding:10px 14px;border-radius:8px;font-size:12px;color:var(--sub)">
+                  🧮 <strong>计算</strong>：${item.calc}
+                </div>
+              ` : ''}
+              ${item.source ? `<div style="margin-top:8px;font-size:11px;color:#9ca3af">📄 来源：${item.source}</div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function togglePhase(id) {
+  const card = document.getElementById('phase-' + id);
+  card.classList.toggle('open');
+}
+
+// ====== RENDER APPROVALS ======
+function renderApprovals() {
+  const container = document.getElementById('approvalMatrix');
+  let filtered = approvalData;
+  if (searchTerm) {
+    filtered = approvalData.map(cat => ({
+      ...cat,
+      items: cat.items.filter(i => i.scene.toLowerCase().includes(searchTerm))
+    })).filter(cat => cat.items.length > 0);
+  }
+  container.innerHTML = filtered.map(cat => `
+    <div class="process-section">
+      <h2>📂 ${cat.cat}</h2>
+      <div class="phase-grid">
+        ${cat.items.map(item => `
+          <div class="phase-card">
+            <div class="phase-header" style="background:#f9fafb">
+              <div>${highlight(item.scene)}</div>
+            </div>
+            <div class="phase-body" style="display:block">
+              <div class="approval-chain">
+                ${item.flow.map((f,i) => `${i>0?'<span class="approval-arrow">→</span>':''}<span class="approval-node ${i===0?'key':''}">${f}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ====== HIGHLIGHT ======
+function highlight(text) {
+  if (!searchTerm) return text;
+  const re = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(re, '<span class="highlight">$1</span>');
+}
+
+// ====== TOAST ======
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ====== RENDER ALL ======
+function renderAll() {
+  renderProducts();
+  renderProcesses();
+  renderApprovals();
+  renderResources();
+}
+
+// ====== KEYBOARD ======
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// ====== RESOURCE DATA ======
+const resourceData = [
+  {
+    cat: 'pc_nav', title: 'PC导航 — 名站区',
+    items: [
+      {name:'名站', page:30, sell:'CPT', period:'天', qty:'23个', bid:'否', info:'导航首页名站位，支持定向投放'},
+      {name:'名站图标(icon)', page:30, sell:'CPT', period:'天', qty:'已购名站可采买', bid:'否', info:'名站基础上增加icon展示'},
+      {name:'名站标红', page:30, sell:'CPT', period:'天', qty:'2个', bid:'否', info:'名站文字标红突出显示'},
+      {name:'名站图片气泡', page:29, sell:'CPT', period:'天', qty:'一事一议', bid:'否', info:'悬浮气泡样式，适合活动推广'},
+      {name:'名站tab+AI分类', page:31, sell:'CPT', period:'月', qty:'游戏12/新闻12', bid:'否', info:'新版导航名站tab，游戏/新闻两大分类'},
+      {name:'名站tab-AI文字链', page:32, sell:'CPT', period:'月', qty:'11个/分类', bid:'否', info:'tab下文字链广告'},
+      {name:'名站tab-AI文字链+icon', page:33, sell:'CPT', period:'月', qty:'11个/分类', bid:'否', info:'文字链基础上+icon展示'},
+      {name:'名站tab-AI文字链+标红', page:34, sell:'CPT', period:'月', qty:'1个/分类', bid:'否', info:'文字链+标红突出'},
+      {name:'名站tab-AI中部', page:35, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'tab页中部大图广告位'},
+      {name:'名站tab-AI底部', page:36, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'tab页底部广告位'},
+      {name:'呼吸灯', page:37, sell:'CPT', period:'天', qty:'2个', bid:'否', info:'新版导航首页呼吸灯广告，高曝光'},
+      {name:'右侧电梯图', page:38, sell:'CPT', period:'天', qty:'1个', bid:'否', info:'导航右侧悬浮跟随广告'},
+    ]
+  },
+  {
+    cat: 'pc_nav', title: 'PC导航 — 酷站与游戏',
+    items: [
+      {name:'酷站', page:39, sell:'CPT', period:'天', qty:'8个/分类(7类)', bid:'否', info:'休闲/生活/理财/商旅/综合/邮箱/视频7个分类'},
+      {name:'酷站标红', page:39, sell:'CPT', period:'天', qty:'1个/分类', bid:'否', info:'酷站文字标红突出'},
+      {name:'酷站icon', page:39, sell:'CPT', period:'天', qty:'7个/分类', bid:'否', info:'酷站+icon展示'},
+      {name:'动态icon', page:30, sell:'CPT', period:'天', qty:'1个', bid:'否', info:'动效icon，更醒目'},
+      {name:'玩游戏-头部banner1', page:11, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'玩游戏主页头部banner，最醒目位置'},
+      {name:'玩游戏-头部banner2-5', page:12, sell:'CPT', period:'月', qty:'4/月', bid:'否', info:'头部banner第2-5位'},
+      {name:'热门游戏tab-文字链', page:13, sell:'CPT', period:'月', qty:'30/月', bid:'否', info:'热门游戏文字链广告'},
+      {name:'热门游戏tab-文字链标红', page:14, sell:'CPT', period:'月', qty:'6/月', bid:'否', info:'文字链标红'},
+      {name:'热门游戏tab-悬浮图', page:15, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'不单独售卖，文字链基础上增加'},
+      {name:'热门游戏tab-图', page:16, sell:'CPT', period:'月', qty:'6/月', bid:'否', info:'热门游戏tab大图广告'},
+      {name:'网络游戏tab-文字链', page:17, sell:'CPT', period:'月', qty:'30/月', bid:'否', info:'网络游戏tab文字链'},
+      {name:'网络游戏tab-文字链标红', page:18, sell:'CPT', period:'月', qty:'6/月', bid:'否', info:'文字链标红'},
+      {name:'网络游戏tab-悬浮图', page:19, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'不单独售卖，需搭配文字链'},
+      {name:'网络游戏tab-图', page:20, sell:'CPT', period:'月', qty:'6/月', bid:'否', info:'网络游戏tab大图'},
+      {name:'精选游戏-轮播图1', page:21, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'精选游戏轮播首位'},
+      {name:'精选游戏-轮播图2-5', page:22, sell:'CPT', period:'月', qty:'4/月', bid:'否', info:'精选游戏轮播第2-5位'},
+      {name:'精选游戏小图', page:23, sell:'CPT', period:'月', qty:'12/月', bid:'否', info:'精选游戏小图列表'},
+      {name:'中部图1', page:24, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'玩游戏主页中部大图位置1'},
+      {name:'中部图2', page:26, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'玩游戏主页中部大图位置2'},
+      {name:'中部图3', page:28, sell:'CPT', period:'月', qty:'1/月', bid:'否', info:'玩游戏主页中部大图位置3'},
+      {name:'经典游戏大图', page:25, sell:'CPT', period:'月', qty:'2/月', bid:'否', info:'经典游戏区域大图'},
+      {name:'经典游戏小图', page:25, sell:'CPT', period:'月', qty:'12/月', bid:'否', info:'经典游戏区域小图'},
+      {name:'爆款游戏', page:27, sell:'CPT', period:'月', qty:'5/月', bid:'否', info:'爆款游戏推荐位'},
+    ]
+  },
+  {
+    cat: 'pc_nav', title: 'PC导航 — 理财专区',
+    items: [
+      {name:'理财大图1', page:48, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'导航理财专区大图首位'},
+      {name:'理财大图2', page:48, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'导航理财专区大图第二位'},
+      {name:'理财文字链/推荐', page:48, sell:'CPT', period:'天', qty:'多位置', bid:'否', info:'理财产品文字链推荐'},
+    ]
+  },
+  {
+    cat: 'pc_safe', title: 'PC安全卫士 — 软件管家(新版)',
+    items: [
+      {name:'新版管家-首页轮播图', page:63, sell:'CPT', period:'天', qty:'8/天', bid:'否', info:'轮播图位置醒目，海量曝光'},
+      {name:'新版管家-首页热门推荐', page:65, sell:'CPT', period:'天', qty:'16/天', bid:'否', info:'热门推荐位，高转化'},
+      {name:'新版管家-首页编辑精选', page:66, sell:'CPT', period:'天', qty:'4个/月(间隔7天)', bid:'否', info:'编辑精选推荐，品牌曝光'},
+      {name:'搜索框热搜推荐', page:68, sell:'CPT', period:'天', qty:'8/天', bid:'否', info:'搜索框默认热搜词，有行业限制'},
+      {name:'游戏页开屏', page:69, sell:'CPT', period:'天', qty:'7-9个/月', bid:'否', info:'游戏tab开屏广告，最强曝光'},
+      {name:'游戏tab页轮播图', page:70, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'游戏页轮播图（标题/描述可选）'},
+      {name:'游戏页编辑精选', page:71, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'游戏页精选推荐'},
+      {name:'游戏页猜你喜欢', page:72, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'游戏页个性化推荐'},
+      {name:'首页必备推荐', page:73, sell:'CPT', period:'天', qty:'8/天', bid:'否', info:'首次安装提示下载/一键安装，高转化'},
+      {name:'首页办公必备', page:74, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'办公必备推荐位'},
+      {name:'首页电脑玩手游', page:74, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'电脑玩手游专题推荐'},
+    ]
+  },
+  {
+    cat: 'pc_safe', title: 'PC安全卫士 — 软件管家(AI专区)',
+    items: [
+      {name:'AI专区精选banner', page:75, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'仅限AI类客户端产品投放'},
+      {name:'AI专区精选推荐', page:75, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'仅限AI类客户端产品投放'},
+    ]
+  },
+  {
+    cat: 'pc_safe', title: 'PC安全卫士 — 弹窗/快资讯',
+    items: [
+      {name:'安全卫士弹窗大图', page:88, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'弹窗广告，每日1位'},
+      {name:'安全卫士弹窗小图', page:89, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'弹窗小图样式'},
+      {name:'清理弹窗', page:85, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'清理完成弹窗广告'},
+      {name:'软件管家默认搜索词', page:68, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'搜索结果首条默认展示'},
+      {name:'软件管家搜索结果第1/2位', page:67, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'搜索结果置顶'},
+    ]
+  },
+  {
+    cat: 'pc_browser', title: 'PC浏览器 — 新标签页',
+    items: [
+      {name:'浏览器新标签页-名站', page:101, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'浏览器新标签页名站广告位'},
+      {name:'浏览器新标签页-第三位', page:102, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'新标签页固定第三位'},
+      {name:'浏览器新标签页-大图', page:null, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'新标签页大图广告'},
+      {name:'浏览器新标签页-动态', page:null, sell:'CPT', period:'周', qty:'一事一议', bid:'否', info:'周售动态广告位'},
+      {name:'浏览器新标签页-信息流', page:null, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'信息流广告位'},
+    ]
+  },
+  {
+    cat: 'mobile', title: '移动端 — 助手/卫士/浏览器',
+    items: [
+      {name:'移动浏览器-信息流', page:136, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'Android端，静态展示'},
+      {name:'移动浏览器-开屏', page:136, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'移动浏览器开屏广告'},
+      {name:'手机助手-推荐位', page:141, sell:'CPT', period:'天', qty:'待确认', bid:'否', info:'手机助手首页推荐'},
+      {name:'手机卫士-清理弹窗', page:142, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'手机卫士清理完成弹窗'},
+      {name:'清理大师-推荐位', page:143, sell:'CPT', period:'天', qty:'1/天', bid:'否', info:'清理大师首页推荐'},
+    ]
+  },
+  {
+    cat: 'search_b', title: 'PC搜索 — 品牌广告',
+    items: [
+      {name:'品牌直达-基础样式(4个)', page:151, sell:'CPT', period:'月', qty:'1词/月', bid:'否', info:'品牌词触发，基础展示样式。可换词(1月1次)'},
+      {name:'品牌直达-高级样式(14个)', page:152, sell:'CPT', period:'月', qty:'1词/月', bid:'否', info:'高级展示样式，含霸屏。AI语料需单独审核'},
+      {name:'品牌直达-定制样式', page:152, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'定制化品牌展示'},
+      {name:'AI品直高级样式(PC)', page:153, sell:'CPT', period:'月', qty:'1词/月', bid:'否', info:'AIGC生成式品牌展示，含数字人互动'},
+      {name:'品直云推(移动版)', page:153, sell:'CPT', period:'月', qty:'1词/月', bid:'否', info:'移动端数字人品牌互动广告'},
+      {name:'品牌通屏样式', page:154, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'PC搜索结果页通屏广告'},
+      {name:'通屏炫动浮层', page:155, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'炫动浮层叠加通屏'},
+      {name:'竞品词争先', page:163, sell:'CPT', period:'月', qty:'一事一议', bid:'否', info:'竞品词触发展示我方广告'},
+      {name:'节日品牌冠名(移动)', page:173, sell:'CPT', period:'一事一议', qty:'是(竞价)', bid:'是', info:'节日期间品牌冠名，需竞价'},
+      {name:'移动搜索-黄金展位', page:174, sell:'CPT', period:'月', qty:'待确认', bid:'否', info:'移动端黄金展位，品牌词触发'},
+      {name:'精品汇(8宫格)', page:167, sell:'CPT', period:'包月', qty:'8选1', bid:'否', info:'8宫格商品展示，自然结果第一位'},
+    ]
+  },
+  {
+    cat: 'search_b', title: 'PC搜索 — 效果广告',
+    items: [
+      {name:'PC搜索推广(CPC)', page:169, sell:'CPC/oCPC', period:'实时', qty:'竞价', bid:'是', info:'文字/图片/子链/导航/组件组合优选'},
+      {name:'移动搜索推广', page:175, sell:'CPC/oCPC', period:'实时', qty:'竞价', bid:'是', info:'移动端搜索竞价广告'},
+    ]
+  },
+  {
+    cat: 'onebox', title: 'OneBox — 结构化搜索广告',
+    items: [
+      {name:'OneBox标准版', page:176, sell:'CPT', period:'包月(≥3个月)', qty:'每词1客户独占', bid:'否', info:'左侧文字链下方、自然结果前10条内。结构化展示'},
+      {name:'OneBox精品汇', page:180, sell:'CPT', period:'包月', qty:'8宫格任选', bid:'否', info:'8宫格样式，商品图片+公司名+描述。自然结果第一位'},
+      {name:'OneBox定制版', page:206, sell:'CPT', period:'包月(≥3个月)', qty:'一事一议', bid:'否', info:'定制化结构化展示，可结构化图文/视频'},
+    ]
+  },
+  {
+    cat: 'mobile', title: '展示广告体系',
+    items: [
+      {name:'PC展示-信息流', page:null, sell:'CPM/CPC', period:'实时', qty:'竞价', bid:'是', info:'PC端信息流广告'},
+      {name:'移动展示-信息流', page:null, sell:'CPM/CPC', period:'实时', qty:'竞价', bid:'是', info:'移动端信息流广告'},
+      {name:'全站智选', page:null, sell:'CPM/CPC', period:'实时', qty:'竞价', bid:'是', info:'自动生成多尺寸创意，全站投放'},
+      {name:'oCPX投放', page:null, sell:'oCPX', period:'实时', qty:'竞价', bid:'是', info:'按转化目标自动出价优化'},
+      {name:'NoBid最大转化', page:null, sell:'NoBid', period:'实时', qty:'竞价', bid:'是', info:'自动出价追求最大转化量'},
+    ]
+  },
+];
+
+// ====== RESOURCE RENDER ======
+let resourceFilter = 'all';
+function filterResources(cat, el) {
+  resourceFilter = cat;
+  document.querySelectorAll('#resourceFilters .quick-tool').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderResources();
+}
+function openImg(page) {
+  const img = document.getElementById('imgOverlayImg');
+  img.src = `resource_img/page_${String(page).padStart(3,'0')}.jpg`;
+  document.getElementById('imgOverlay').classList.add('show');
+}
+function closeImg() {
+  document.getElementById('imgOverlay').classList.remove('show');
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeModal(); closeImg(); }
+});
+function renderResources() {
+  const container = document.getElementById('resourceList');
+  let filtered = resourceData;
+  if (resourceFilter !== 'all') filtered = filtered.filter(s => s.cat === resourceFilter);
+  if (searchTerm) {
+    filtered = filtered.map(sec => ({
+      ...sec,
+      items: sec.items.filter(i => i.name.toLowerCase().includes(searchTerm) || (i.info||'').toLowerCase().includes(searchTerm))
+    })).filter(sec => sec.items.length > 0);
+  }
+  container.innerHTML = filtered.map(sec => {
+    // 将重复页码的条目移到末尾，避免相同图片聚在一起
+    const pageFirst = {};
+    const ordered = [];
+    const dupes = [];
+    sec.items.forEach(r => {
+      if (r.page && pageFirst[r.page] !== undefined) {
+        dupes.push(r);
+      } else {
+        if (r.page) pageFirst[r.page] = ordered.length;
+        ordered.push(r);
+      }
+    });
+    const sorted = ordered.concat(dupes);
+    return `
+    <div class="resource-section">
+      <h3>📌 ${sec.title} <span style="font-weight:400;font-size:12px;color:var(--sub);margin-left:8px">(${sec.items.length}个资源位)</span></h3>
+      <div class="resource-grid">
+        ${sorted.map(r => {
+          const badgeClass = {CPT:'cpt',CPM:'cpm',CPC:'cpc',oCPC:'cpc',oCPX:'cpc',NoBid:'cpc'}[r.sell] || 'cpt';
+          const periodClass = {天:'day',月:'month',周:'week'}[r.period] || 'month';
+          const imgSrc = (r.page && r.page > 0) ? `resource_img/page_${String(r.page).padStart(3,'0')}.jpg` : '';
+          return `
+          <div class="resource-card" onclick="${imgSrc ? `openImg(${r.page})` : ''}" style="${imgSrc ? 'cursor:zoom-in' : ''}">
+            <div class="r-name">${highlight(r.name)}</div>
+            <div class="r-meta">
+              <span class="r-badge ${badgeClass}">${r.sell}</span>
+              <span class="r-badge ${periodClass}">${r.period}</span>
+              <span style="font-size:11px;color:var(--sub)">库存: ${r.qty}</span>
+              ${r.bid === '是' ? '<span style="font-size:11px;color:var(--orange)">🔥竞价</span>' : ''}
+            </div>
+            ${r.info ? `<div class="r-info">${highlight(r.info)}</div>` : ''}
+            ${imgSrc ? `<img class="r-preview" src="${imgSrc}" loading="lazy" alt="${r.name}" style="display:block" onclick="event.stopPropagation();openImg(${r.page})">` : ''}
+          </div>
+        `}).join('')}
+      </div>
+    </div>
+  `}).join('');
+}
+
+// ====== INIT ======
+renderAll();
+</script>
+</body>
+</html>

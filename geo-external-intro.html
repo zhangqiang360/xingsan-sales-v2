@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>360智见 GEO — 让品牌被 AI 推荐</title>
+<style>
+:root {
+  --bg: #f8fafc;
+  --card: #fff;
+  --text: #1a1a2e;
+  --sub: #64748b;
+  --accent: #2563eb;
+  --accent-dark: #1d4ed8;
+  --accent-light: #eff6ff;
+  --green: #059669;
+  --green-bg: #ecfdf5;
+  --orange: #ea580c;
+  --orange-bg: #fff7ed;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.08);
+  --radius: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); line-height:1.7; }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #2563eb 100%); color: #fff; padding: 80px 24px 60px; text-align: center; position: relative; overflow: hidden; }
+.hero::after { content:''; position:absolute; inset:0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero .badge { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding: 6px 16px; border-radius: 20px; font-size: 13px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+.hero h1 { font-size: 42px; font-weight: 700; margin-bottom: 16px; letter-spacing: -1px; }
+.hero h1 span { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero .sub { font-size: 18px; opacity: .85; max-width: 680px; margin: 0 auto 28px; }
+.hero .cta { display: inline-flex; gap: 12px; }
+.hero .cta a { padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; transition: .2s; }
+.cta-primary { background: #fff; color: var(--accent); }
+.cta-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,255,255,.3); }
+.cta-secondary { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+.cta-secondary:hover { background: rgba(255,255,255,.18); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* Section */
+.section { padding: 64px 0; }
+.section-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.section-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+.section-desc { font-size: 15px; color: var(--sub); max-width: 640px; margin-bottom: 32px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { background: var(--card); border-radius: var(--radius); padding: 28px 24px; box-shadow: var(--shadow); text-align: center; }
+.stat-card .num { font-size: 36px; font-weight: 700; color: var(--accent); }
+.stat-card .label { font-size: 13px; color: var(--sub); margin-top: 4px; }
+
+/* Problem - Solution */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 768px) { .split { grid-template-columns: 1fr; } }
+.split-card { background: var(--card); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+.split-card.pain { border-top: 3px solid var(--red); }
+.split-card.gain { border-top: 3px solid var(--green); }
+.split-card h3 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.split-card ul { list-style: none; }
+.split-card li { padding: 8px 0; font-size: 14px; display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid #f8fafc; }
+.split-card li:last-child { border: none; }
+.split-card li .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+.dot.red { background: var(--red); }
+.dot.green { background: var(--green); }
+
+/* Model */
+.model { background: #fff; border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+.model h3 { font-size: 20px; margin-bottom: 24px; text-align: center; }
+.create-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+.create-step { text-align: center; padding: 20px 16px; background: var(--accent-light); border-radius: 12px; transition: .2s; }
+.create-step:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.create-step .letter { font-size: 32px; font-weight: 800; color: var(--accent); }
+.create-step .name { font-size: 14px; font-weight: 600; margin: 6px 0; }
+.create-step .desc { font-size: 12px; color: var(--sub); }
+
+/* Service Tiers */
+.tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { .tiers { grid-template-columns: 1fr; } }
+.tier-card { background: var(--card); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.tier-card.pro { border: 2px solid var(--accent); }
+.tier-card.pro::before { content:'推荐'; position:absolute; top:16px; right:-28px; background: var(--accent); color:#fff; font-size:11px; padding:4px 36px; transform: rotate(45deg); }
+.tier-card h3 { font-size: 20px; margin-bottom: 4px; }
+.tier-card .tier-sub { font-size: 13px; color: var(--sub); margin-bottom: 20px; }
+.tier-card .price { font-size: 14px; color: var(--sub); margin-bottom: 20px; }
+.tier-card .price strong { font-size: 32px; color: var(--text); }
+.tier-card ul { list-style: none; margin-bottom: 24px; }
+.tier-card li { padding: 6px 0; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+/* Pricing Table */
+.price-table { overflow-x: auto; }
+.price-table table { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.price-table th { background: var(--accent); color: #fff; padding: 14px 16px; text-align: left; font-weight: 600; }
+.price-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.price-table tr:last-child td { border-bottom: none; }
+.price-table .note { font-size: 12px; color: var(--sub); margin-top: 8px; }
+
+/* Process */
+.process-steps { display: flex; gap: 0; flex-wrap: wrap; }
+@media (max-width: 768px) { .process-steps { flex-direction: column; } }
+.step { flex: 1; min-width: 180px; text-align: center; padding: 24px 16px; position: relative; }
+.step:not(:last-child)::after { content: '→'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--accent); }
+@media (max-width: 768px) { .step:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -8px; transform: translateX(50%); } }
+.step .step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; margin: 0 auto 12px; }
+.step .step-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.step .step-desc { font-size: 12px; color: var(--sub); }
+
+/* Platforms */
+.platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.platform-card { background: var(--card); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.platform-card h4 { font-size: 15px; margin-bottom: 8px; }
+.platform-card .source { font-size: 12px; color: var(--sub); }
+
+/* Cases */
+.case { background: #fff; border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+.case-header h3 { font-size: 17px; }
+.case-cta { border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+.case-cta.green { background: var(--green-bg); color: var(--green); }
+.case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { .case-grid { grid-template-columns: 1fr; } }
+.case-grid .col h4 { font-size: 13px; color: var(--sub); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.case-grid .col p { font-size: 13px; }
+
+/* CTA Section */
+.cta-section { background: linear-gradient(135deg, #1e3a5f, #2563eb); color: #fff; text-align: center; padding: 64px 24px; border-radius: var(--radius); margin: 64px 0; }
+.cta-section h2 { font-size: 26px; margin-bottom: 8px; }
+.cta-section p { opacity: .8; margin-bottom: 24px; }
+.cta-section .contact-info { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.contact-chip { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); padding: 10px 20px; border-radius: 10px; font-size: 14px; backdrop-filter: blur(5px); }
+
+/* Footer */
+footer { text-align: center; padding: 32px; color: var(--sub); font-size: 12px; border-top: 1px solid var(--border); }
+
+/* Redline Alert */
+.alert { background: var(--red-bg); border-left: 3px solid var(--red); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: var(--red); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="badge">🏅 信通院首批认证 · 360 商业化 AI 品牌运营中台</div>
+  <h1>360智见 <span>2.0</span> — 让品牌被 AI 主动推荐</h1>
+  <p class="sub">打通售前诊断→知识图谱→语义分析→拓词生文→信源分发→售后验收全链路闭环<br>覆盖 DeepSeek、豆包、Kimi 等 7 大主流 AI 平台，承诺达标率 ≥80%</p>
+  <div class="cta">
+    <a href="#contact" class="cta-primary">获取品牌诊断报告</a>
+    <a href="#how" class="cta-secondary">了解如何做到 →</a>
+  </div>
+</section>
+
+<div class="container">
+
+<!-- Market Data -->
+<section class="section">
+  <div class="section-label">市场背景</div>
+  <h2 class="section-title">搜索范式正在被 AI 重塑</h2>
+  <p class="section-desc">用户不再翻阅几十个蓝色链接，而是直接向 AI 提问「哪个更好」「怎么选」，依赖 AI 提炼的答案做决策。</p>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">3.31<span style="font-size:16px">亿</span></div>
+      <div class="label">豆包月活用户</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">1.37<span style="font-size:16px">亿</span></div>
+      <div class="label">DeepSeek 月活用户</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">80<span style="font-size:16px">%</span></div>
+      <div class="label">企业决策者习惯使用 AI</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">30<span style="font-size:16px">亿</span></div>
+      <div class="label">2026 年 GEO 市场规模（预估）</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">42<span style="font-size:16px">%</span></div>
+      <div class="label">用户会点击 AI 提供的引用来源</div>
+    </div>
+  </div>
+</section>
+
+<!-- Pain vs Gain -->
+<section class="section">
+  <div class="section-label">核心价值</div>
+  <h2 class="section-title">你的品牌是否在 AI 中「隐形」？</h2>
+  <p class="section-desc">当你的潜在客户向 AI 提问时，如果推荐的永远是竞品——你正在免费为对手输送客户。</p>
+  <div class="split">
+    <div class="split-card pain">
+      <h3>❌ 没有 GEO 的现状</h3>
+      <ul>
+        <li><span class="dot red"></span>客户向 AI 提问时，品牌从未出现</li>
+        <li><span class="dot red"></span>AI 搜索结果中充斥过时、错误品牌信息</li>
+        <li><span class="dot red"></span>竞争对手通过 GEO 抢走你的潜在客户</li>
+        <li><span class="dot red"></span>负面/不实信息在 AI 回答中持续扩散</li>
+        <li><span class="dot red"></span>品牌在 AI 时代的信任资产为零</li>
+      </ul>
+    </div>
+    <div class="split-card gain">
+      <h3>✅ 有了 GEO 之后</h3>
+      <ul>
+        <li><span class="dot green"></span>客户向 AI 提问时，品牌位列推荐前三</li>
+        <li><span class="dot green"></span>AI 引用品牌官方权威信息，信息准确可控</li>
+        <li><span class="dot green"></span>在高意向决策场景中拦截精准客户</li>
+        <li><span class="dot green"></span>正面信息占比 ≥90%，品牌声誉受保护</li>
+        <li><span class="dot green"></span>AI 推荐 = 最强品牌背书，信任度倍增</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CREATE Model -->
+<section class="section" id="how">
+  <div class="section-label">方法论</div>
+  <h2 class="section-title">CREATE 模型 — 科学占位 AI 搜索</h2>
+  <p class="section-desc">摒弃盲目铺量，基于系统化模型精准抢占 AI 语义入口。</p>
+  <div class="model">
+    <div class="create-grid">
+      <div class="create-step">
+        <div class="letter">C</div>
+        <div class="name">Capture 捕获</div>
+        <div class="desc">量化诊断品牌在各大模型中的可见度与盲区</div>
+      </div>
+      <div class="create-step">
+        <div class="letter">R</div>
+        <div class="name">Reconstruct 重构</div>
+        <div class="desc">分析客户决策前都会问 AI 什么问题</div>
+      </div>
+      <div class="create-step">
+        <div class="letter">E</div>
+        <div class="name">Evaluate 评估</div>
+        <div class="desc">拆解各 AI 平台偏好的内容逻辑与信源</div>
+      </div>
+      <div class="create-step">
+        <div class="letter">A</div>
+        <div class="name">Amplify 放大</div>
+        <div class="desc">按高分文章结构撰写品牌内容并分发</div>
+      </div>
+      <div class="create-step">
+        <div class="letter">T</div>
+        <div class="name">Track 追踪</div>
+        <div class="desc">持续监测 AI 提及率、推荐排名、情感分析</div>
+      </div>
+      <div class="create-step">
+        <div class="letter">E</div>
+        <div class="name">Evolve 进化</div>
+        <div class="desc">数据驱动迭代内容策略，长效沉淀品牌资产</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service Tiers -->
+<section class="section">
+  <div class="section-label">产品方案</div>
+  <h2 class="section-title">选择适合你的服务模式</h2>
+  <p class="section-desc">无论你是想自主操作还是希望一站式托管，我们都提供对应的解决方案。</p>
+
+  <div class="tiers">
+    <div class="tier-card">
+      <h3>📊 基础版</h3>
+      <div class="tier-sub">适合有内容团队、希望自主操作的企业</div>
+      <div class="price">按需定制</div>
+      <ul>
+        <li>✅ 品牌 AI 健康诊断报告</li>
+        <li>✅ 企业知识库自助搭建平台</li>
+        <li>✅ AI 意图关键词拓词工具</li>
+        <li>✅ 跨模型监测看板（6 大平台）</li>
+        <li>✅ D.A.R.T 品牌心智份额追踪</li>
+      </ul>
+    </div>
+    <div class="tier-card pro">
+      <h3>🚀 服务版（推荐）</h3>
+      <div class="tier-sub">适合希望一站式获得确定性效果的企业</div>
+      <div class="price">按关键词数量 &amp; 平台数量计费<br><strong>¥3,000</strong> 起 / 词·季度</div>
+      <ul>
+        <li>✅ <strong>专家策略定制</strong> — 分析师人工筛选高价值金词</li>
+        <li>✅ <strong>AI 偏好内容批量生产</strong> — 不限文章数量</li>
+        <li>✅ <strong>高权重媒体分发</strong> — 15 万+ 合作媒体库精准投放</li>
+        <li>✅ <strong>确定性效果保障</strong> — 3-10 个工作日达标</li>
+        <li>✅ <strong>3 个月持续维护</strong> — 数据监控 + 策略迭代</li>
+        <li>✅ <strong>多档交付选择</strong> — 优质保排名 / 轻享保收录 / 意图词包</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Pricing Table -->
+  <div style="margin-top: 32px;">
+    <h3 style="font-size:16px; margin-bottom:12px;">服务版刊例参考（6月最新）</h3>
+    <div class="price-table">
+      <table>
+        <thead>
+          <tr>
+            <th>关键词类型</th>
+            <th>交付标准</th>
+            <th>1 平台（元/季度）</th>
+            <th>2 平台（元/季度）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>品牌词</td>
+            <td>收录≥20篇，正面中立≥70%</td>
+            <td>¥3,000</td>
+            <td>¥4,200</td>
+          </tr>
+          <tr>
+            <td>地区排名词</td>
+            <td>80%概率 TOP3</td>
+            <td>¥4,500</td>
+            <td>¥6,300</td>
+          </tr>
+          <tr>
+            <td>全国排名词</td>
+            <td>80%概率 TOP3</td>
+            <td>¥5,500</td>
+            <td>¥7,700</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><strong>品类词 A·保排名 🥇</strong></td>
+            <td>80%概率 TOP3</td>
+            <td colspan="2" style="text-align:center;">询价</td>
+          </tr>
+          <tr style="background:#fff7ed;">
+            <td><strong>品类词 B·保收录 🆕</strong></td>
+            <td>每周收录≥50词条</td>
+            <td colspan="2" style="text-align:center;">询价</td>
+          </tr>
+          <tr style="background:#f5f3ff;">
+            <td><strong>意图词包 🆕</strong></td>
+            <td>主词TOP3 + 词条收录≥5</td>
+            <td colspan="2" style="text-align:center;">询价</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">* 刊例底价，高价值关键词需定制化询价。覆盖 DeepSeek/豆包/元宝/Kimi/千问/文心一言/智谱 7 大平台。<br>* 品类词新增「轻享保收录」选项，性价比更高。详情咨询销售经理。</div>
+  </div>
+</section>
+
+<!-- What You Get -->
+<section class="section">
+  <div class="section-label">效果指标</div>
+  <h2 class="section-title">D.A.R.T 量化体系 — 让效果看得见</h2>
+  <p class="section-desc">不只是「感觉有效」，我们用四维数据量化品牌在 AI 中的真实影响力。</p>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">D</div>
+      <div class="label" style="font-weight:600">Discover 发现率</div>
+      <div class="label">品牌在核心问题集中是否被 AI 展现</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">A</div>
+      <div class="label" style="font-weight:600">Authority 权威性</div>
+      <div class="label">AI 是否引用品牌官方/权威媒体作为信源</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">R</div>
+      <div class="label" style="font-weight:600">Rank 排名</div>
+      <div class="label">品牌在 AI 推荐中位列前三的频率</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">T</div>
+      <div class="label" style="font-weight:600">Tone 情感</div>
+      <div class="label">AI 描述品牌时的情感倾向（正面/中性/负面）</div>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section class="section">
+  <div class="section-label">合作流程</div>
+  <h2 class="section-title">从诊断到占位，只需 5 步</h2>
+  <p class="section-desc">标准化交付流程，服务版客户最快 3 个工作日看到效果。</p>
+  <div class="process-steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">品牌诊断扫描</div>
+      <div class="step-desc">跨 6 大主流 AI 模型扫描品牌收录/推荐情况，输出诊断报告</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">策略定制</div>
+      <div class="step-desc">分析师筛选高价值意图金词，定制品牌知识图谱与内容策略</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">内容生产</div>
+      <div class="step-desc">AI 批量生成符合各平台偏好的结构化内容，人工调优审核</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">媒体分发</div>
+      <div class="step-desc">精准匹配高权重信源平台（知乎/搜狐/网易等），多平台发布</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-title">效果追踪</div>
+      <div class="step-desc">数据看板实时监控收录/排名/情感，持续迭代优化</div>
+    </div>
+  </div>
+</section>
+
+<!-- Platforms -->
+<section class="section">
+  <div class="section-label">覆盖平台</div>
+  <h2 class="section-title">覆盖主流 AI 大模型与高权重信源</h2>
+  <p class="section-desc">不同 AI 平台偏好不同的信息来源，我们精准匹配，让每一分钱花在刀刃上。</p>
+  <div class="platform-grid">
+    <div class="platform-card">
+      <h4>🤖 DeepSeek</h4>
+      <div class="source">偏好：搜狐、网易、什么值得买、百家号、腾讯新闻</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 豆包</h4>
+      <div class="source">偏好：头条号、抖音百科、什么值得买、快懂百科</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 元宝</h4>
+      <div class="source">偏好：公众号、腾讯新闻、搜狐、头条号、网易</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 Kimi</h4>
+      <div class="source">偏好：知乎、什么值得买、B站、搜狐、网易、新浪</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 文心一言</h4>
+      <div class="source">偏好：百度百科、百家号、百度知道、搜狐、网易</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 通义千问</h4>
+      <div class="source">偏好：知乎、小红书、搜狐、新浪、36氪</div>
+    </div>
+    <div class="platform-card">
+      <h4>🤖 智谱</h4>
+      <div class="source">偏好：知网、百度学术、知乎、搜狐、澎湃新闻</div>
+    </div>
+  </div>
+</section>
+
+<!-- Why 360 -->
+<section class="section">
+  <div class="section-label">独家优势</div>
+  <h2 class="section-title">为什么选择 360 智见？</h2>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">🔍</div>
+      <div class="label" style="font-weight:600">搜索原生架构</div>
+      <div class="label">原生融合SEO+GEO，收录快、权重高</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">🧬</div>
+      <div class="label" style="font-weight:600">自研技术</div>
+      <div class="label">非外挂拼接，效果长期稳定</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">🤖</div>
+      <div class="label" style="font-weight:600">智脑大模型</div>
+      <div class="label">低幻觉、高可信，适配各平台调性</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">🔐</div>
+      <div class="label" style="font-weight:600">安全合规</div>
+      <div class="label">信通院首批认证，千亿级安全样本库</div>
+    </div>
+  </div>
+</section>
+
+<!-- Cases -->
+<section class="section">
+  <div class="section-label">案例</div>
+  <h2 class="section-title">真实客户效果</h2>
+
+  <div class="case">
+    <div class="case-header">
+      <h3>🎮 某网页游戏平台</h3>
+      <span class="case-cta green">GEO 优化中</span>
+    </div>
+    <div class="case-grid">
+      <div class="col">
+        <h4>优化前</h4>
+        <p>AI 搜索品牌信息失真、负面舆情严重、竞品拉踩内容泛滥、正确时效性内容匮乏</p>
+      </div>
+      <div class="col">
+        <h4>优化后</h4>
+        <p>日产出 8-10 篇正向权威文章覆盖 8 家核心游戏媒体，梯度负面对冲体系搭建，品牌正面信息占比大幅提升</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="case">
+    <div class="case-header">
+      <h3>🏥 某中医门诊</h3>
+      <span class="case-cta green">7 天上榜前三</span>
+    </div>
+    <div class="case-grid">
+      <div class="col">
+        <h4>执行策略</h4>
+        <p>补齐资质/医师/疗法/地址等基础信息库 → 新增 ≥5 条权威背书 → 日产出 ≥10 篇结构化稿件覆盖搜狐/网易/名医在线等权威信源</p>
+      </div>
+      <div class="col">
+        <h4>关键成果</h4>
+        <p>第 7 天开始起效，收录率周增长 ≥20pp；第 8 天在豆包「中医减肥」相关词条下位列推荐榜前三；正面信息占比 ≥90%</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Redline -->
+<div class="alert">
+  <strong>⚠️ 重要提示：正规 GEO 的核心原则</strong><br>
+  不造假、不投毒、不操控 AI。我们用真实品牌内容赢得 AI 的真实推荐。请警惕市场上以「AI 投毒」「虚假权威背书」「堆砌极限词」「批量生成低质水文」为手段的违规服务——短期骗过算法，长期品牌将被 AI 拉入「低信任源」名单，得不偿失。
+</div>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <h2>让品牌在 AI 时代不再隐形</h2>
+  <p>免费获取品牌 AI 健康诊断报告，了解你的品牌在大模型中的真实表现</p>
+  <div class="contact-info">
+    <div class="contact-chip">📱 13212801307</div>
+    <div class="contact-chip">💬 微信同号</div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>360 商业化 · 360智见 GEO | 生成式引擎优化，让品牌被 AI 主动推荐</p>
+</footer>
+
+</body>
+</html>
