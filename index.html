@@ -181,7 +181,13 @@ header .meta { font-size: 12px; opacity: .7; }
 .img-overlay img { max-width: 95vw; max-height: 95vh; border-radius: 8px; box-shadow: 0 8px 48px rgba(0,0,0,.5); }
 </style>
 </head>
-<body>
+<body><div style="background:#ff0;padding:8px;text-align:center;position:sticky;top:0;z-index:9999">
+<span style="font-weight:bold">🔍 图片直测：</span>
+<img src="resource_img/page_030.jpg" width="80" style="border:2px solid red;vertical-align:middle;margin:0 4px" onerror="this.alt='❌FAIL'">
+<img src="resource_img/page_010.jpg" width="80" style="border:2px solid red;vertical-align:middle;margin:0 4px" onerror="this.alt='❌FAIL'">
+<span style="font-size:11px">看到红框图=图片OK，看不到=路径BUG</span>
+</div>
+
 
 <header>
   <div>
