@@ -9,7 +9,6 @@ redirects = []
 [build]
 publish = "/Users/zhangqiang/.openclaw/workspace/xingsan2/deploy"
 publishOrigin = "default"
-base = "/Users/zhangqiang/.openclaw/workspace/xingsan2/deploy"
 
 [build.environment]
 
