@@ -1263,7 +1263,7 @@ function renderResources() {
               ${r.bid === '是' ? '<span style="font-size:11px;color:var(--orange)">🔥竞价</span>' : ''}
             </div>
             ${r.info ? `<div class="r-info">${highlight(r.info)}</div>` : ''}
-            ${imgSrc ? `<img class="r-preview" src="${imgSrc}" loading="lazy" alt="${r.name}" style="display:block" onclick="event.stopPropagation();openImg(${r.page})">` : ''}
+            ${imgSrc ? `<img class="r-preview" src="${imgSrc}" alt="${r.name}" style="display:block" onclick="event.stopPropagation();openImg(${r.page})">` : ''}
           </div>
         `}).join('')}
       </div>
