@@ -162,7 +162,7 @@ header .meta { font-size: 12px; opacity: .7; }
 .r-badge.month { background: #d1fae5; color: #065f46; }
 .r-badge.day { background: #fee2e2; color: #991b1b; }
 .r-badge.week { background: #e0e7ff; color: #3730a3; }
-.r-info { font-size: 11px; color: var(--sub); margin-top: 2px; }
+.r-info { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
 .r-preview { width: 100%; margin-top: 8px; border-radius: 6px; border: 1px solid var(--border); cursor: zoom-in; transition: transform .2s; display: block; }
 .r-preview:hover { transform: scale(1.02); }
 .resource-card.expanded .r-preview { /* always visible */ }
@@ -1254,7 +1254,7 @@ function renderResources() {
           const periodClass = {天:'day',月:'month',周:'week'}[r.period] || 'month';
           const imgSrc = (r.page && r.page > 0) ? `resource_img/page_${String(r.page).padStart(3,'0')}.jpg` : '';
           return `
-          <div class="resource-card" onclick="${imgSrc ? `openImg(${r.page})` : ''}" style="${imgSrc ? 'cursor:zoom-in' : ''}">
+          <div class="resource-card">
             <div class="r-name">${highlight(r.name)}</div>
             <div class="r-meta">
               <span class="r-badge ${badgeClass}">${r.sell}</span>
@@ -1263,7 +1263,6 @@ function renderResources() {
               ${r.bid === '是' ? '<span style="font-size:11px;color:var(--orange)">🔥竞价</span>' : ''}
             </div>
             ${r.info ? `<div class="r-info">${highlight(r.info)}</div>` : ''}
-            ${imgSrc ? `<div style="text-align:center;padding:6px;color:#999;font-size:11px">📄 第${r.page}页</div>` : ''}
           </div>
         `}).join('')}
       </div>
