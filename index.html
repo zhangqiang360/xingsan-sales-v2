@@ -122,12 +122,83 @@ header .meta { font-size: 12px; opacity: .7; }
 .timeline-item .step-desc { font-size: 12px; color: var(--sub); }
 
 /* Responsive */
+/* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .product-grid, .phase-grid { grid-template-columns: 1fr; }
-  .search-bar { width: 200px; }
-  header { padding: 12px 16px; }
-  .main { padding: 12px 16px; }
-  .tabs { flex-direction: column; }
+  /* Layout */
+  .main { padding: 12px; }
+
+  /* Header - stack vertically */
+  header { 
+    padding: 10px 12px; 
+    flex-wrap: wrap; 
+    gap: 8px;
+  }
+  header h1 { font-size: 15px; }
+  header .meta { display: none; }
+  .search-bar { width: 100%; order: 3; flex-basis: 100%; }
+
+  /* Tabs - horizontal scroll instead of column */
+  .tabs { 
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    padding: 4px;
+    white-space: nowrap;
+  }
+  .tab-btn { 
+    flex: 0 0 auto; 
+    padding: 8px 14px; 
+    font-size: 13px; 
+    white-space: nowrap;
+  }
+
+  /* Grids */
+  .product-grid { grid-template-columns: 1fr; gap: 10px; }
+  .phase-grid { grid-template-columns: 1fr; gap: 8px; }
+  .resource-grid { grid-template-columns: 1fr; gap: 8px; }
+
+  /* Product cards */
+  .product-card { padding: 14px; }
+
+  /* Modal */
+  .modal { width: 95%; max-height: 80vh; }
+  .modal-header { padding: 14px 16px 12px; }
+  .modal-header h2 { font-size: 16px; }
+  .modal-body { padding: 14px 16px; }
+  .modal-body .info-row { flex-direction: column; gap: 2px; }
+  .modal-body .info-row .label { width: auto; font-weight: 600; }
+
+  /* Quick tools */
+  .quick-tools { gap: 6px; }
+  .quick-tool { padding: 6px 10px; font-size: 11px; }
+
+  /* Approval chain */
+  .approval-chain { gap: 4px; font-size: 11px; }
+  .approval-node { padding: 3px 8px; }
+
+  /* Resource cards */
+  .resource-card { padding: 12px; }
+  .resource-card .r-name { font-size: 13px; }
+  .resource-card .r-meta { gap: 6px; }
+  .doc-links { gap: 4px; }
+  .doc-link { padding: 6px 10px; font-size: 12px; }
+
+  /* Timeline */
+  .timeline { padding-left: 14px; }
+  .timeline-item { font-size: 12px; padding: 2px 0 10px 14px; }
+
+  /* Toast */
+  .toast { bottom: 16px; font-size: 12px; padding: 8px 16px; max-width: 90vw; }
+}
+
+@media (max-width: 480px) {
+  header h1 { font-size: 14px; }
+  .tab-btn { padding: 6px 10px; font-size: 12px; }
+  .product-card h3 { font-size: 14px; }
+  .phase-card .phase-header { font-size: 13px; padding: 10px 12px; }
+  .modal { width: 98%; border-radius: 12px; }
+  .checklist li { font-size: 12px; }
 }
 
 /* Empty state */
@@ -162,7 +233,7 @@ header .meta { font-size: 12px; opacity: .7; }
 .r-badge.month { background: #d1fae5; color: #065f46; }
 .r-badge.day { background: #fee2e2; color: #991b1b; }
 .r-badge.week { background: #e0e7ff; color: #3730a3; }
-.r-info { font-size: 12px; color: #6b7280; margin-top: 6px; line-height: 1.6; }
+.r-info { font-size: 11px; color: var(--sub); margin-top: 2px; }
 .r-preview { width: 100%; margin-top: 8px; border-radius: 6px; border: 1px solid var(--border); cursor: zoom-in; transition: transform .2s; display: block; }
 .r-preview:hover { transform: scale(1.02); }
 .resource-card.expanded .r-preview { /* always visible */ }
@@ -1254,7 +1325,7 @@ function renderResources() {
           const periodClass = {天:'day',月:'month',周:'week'}[r.period] || 'month';
           const imgSrc = (r.page && r.page > 0) ? `resource_img/page_${String(r.page).padStart(3,'0')}.jpg` : '';
           return `
-          <div class="resource-card">
+          <div class="resource-card" onclick="${imgSrc ? `openImg(${r.page})` : ''}" style="${imgSrc ? 'cursor:zoom-in' : ''}">
             <div class="r-name">${highlight(r.name)}</div>
             <div class="r-meta">
               <span class="r-badge ${badgeClass}">${r.sell}</span>
@@ -1263,6 +1334,7 @@ function renderResources() {
               ${r.bid === '是' ? '<span style="font-size:11px;color:var(--orange)">🔥竞价</span>' : ''}
             </div>
             ${r.info ? `<div class="r-info">${highlight(r.info)}</div>` : ''}
+            ${imgSrc ? `<div style="text-align:center;padding:6px;color:#999;font-size:11px">📄 第${r.page}页</div>` : ''}
           </div>
         `}).join('')}
       </div>
